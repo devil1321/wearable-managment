@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <form method="post" action="/auth/register" enctype="application/x-www-form-urlencoded">
+            <label for="name">Nickname:</label>
+            <input type="text" id="name" name="nickname" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <label >First Name:</label>
+            <input type="text"  name="first_name" required>
+
+            <label >Last Name:</label>
+            <input type="text"  name="last_name" required>
+
+            <label >Password 1:</label>
+            <input type="text"  name="password_1" required>
+
+            <label >Password 2:</label>
+            <input type="text"  name="password_2" required>
+
+
+            <input type="submit" value="Submit">
+            <input type="reset" value="Reset">
+        </form>
+    </body>
+</html>

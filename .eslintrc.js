@@ -22,4 +22,8 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+  "rules": {
+    "prettier/prettier": "off"
+  }
 };
