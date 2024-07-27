@@ -19,7 +19,7 @@ export class UsersService extends PrismaClient implements OnModuleDestroy, OnMod
                 data = {
                     ...profile,
                     password:hash ? hash : profile.password,
-                    isGoogle:profile.isGoogle ? profile.isGoogle : false
+                    isgoogle:profile.isgoogle ? profile.isgoogle : false
                 }
                 delete data.password_1
                 delete data.password_2

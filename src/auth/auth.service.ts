@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt'
 @Injectable()
 export class AuthService {
     constructor(private usersService:UsersService){}
-    async registerLocal(profile:any){
+    async registerLocal(profile){
         const user = await this.usersService.getUser(profile.email)
         if(user){
             return {
@@ -48,7 +48,7 @@ export class AuthService {
             }
         }
     }
-    async validateGoogle(profile:any){
+    async validateGoogle(profile){
         const user = await this.usersService.getUser(profile.emails[0].value)
         if(user){
             return user
@@ -59,7 +59,7 @@ export class AuthService {
                 first_name:'',
                 last_name:'',
                 phone:'',
-                isGoogle:true
+                isgoogle:true
             },null)
             return user
         }

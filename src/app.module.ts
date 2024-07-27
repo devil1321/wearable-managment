@@ -8,9 +8,10 @@ import { OrdersModule } from './orders/orders.module';
 import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
-  imports: [AuthModule,EmailsModule,TasksModule,OrdersModule,ChatModule,ProfileModule,PassportModule.register({ defaultStrategy: 'local' })],
+  imports: [AuthModule,AnalyticsModule,EmailsModule,TasksModule,OrdersModule,ChatModule,ProfileModule,PassportModule.register({ defaultStrategy: 'local' })],
   controllers: [AppController],
   providers: [AppService],
 })

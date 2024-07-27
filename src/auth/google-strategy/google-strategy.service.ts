@@ -18,9 +18,6 @@ export class GoogleStrategyService extends PassportStrategy(Strategy,'google') {
         if(!user){
             throw new UnauthorizedException()
         }
-        return{
-            user,
-            accessToken
-        }
+        done(null, { user, accessToken });
     }
 }

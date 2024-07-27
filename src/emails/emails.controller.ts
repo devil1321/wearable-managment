@@ -1,9 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Render, Req } from '@nestjs/common';
 
 
 @Controller('emails')
 export class EmailsController {
     @Get('')
-    getStore(){
+    @Render('emails')
+    getStore(@Req() req){
+        console.log(req.user)
     }
 }
