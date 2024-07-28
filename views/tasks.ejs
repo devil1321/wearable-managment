@@ -11,9 +11,9 @@
         <div class="container bg-neutral-900">
             <div class="tasks flex justify-between items-start">
                 <%- include('partials/global/sidebar') %>
-                <div class="tasks-main-wrapper">
+                <div class="tasks-main-wrapper min-w-[94%] transition-all">
                     <%- include('partials/global/nav') %>
-                    <div class="tasks-main overflow-y-scroll h-[90vh] flex justify-between items-start">
+                    <div class="tasks-main overflow-y-scroll h-[90vh] px-5 flex justify-between items-start">
                         <%- include('partials/tasks/tasks-window') %>
                         <%- include('partials/tasks/details') %>
                     </div>
