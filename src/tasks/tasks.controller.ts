@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Render, Req,UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Render, Req,Res,UseGuards } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { AuthenticatedGuard } from 'src/auth/guards/authenticated.guard';
+
 
 @Controller('tasks')
 export class TasksController {
@@ -12,35 +13,64 @@ export class TasksController {
     // @UseGuards(AuthenticatedGuard)
     async getTasks(@Req() req){
         const tasks = await this.tasksService.getTasks(1)
-        return { tasks }
+        const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
+        const task = await this.tasksService.getTask(taskId)
+        return { tasks,task }
     }
 
-    @Get(':id')
+    @Get('/:id')
     // @UseGuards(AuthenticatedGuard)
-    @Render('task')
-    async getTask(@Param('id') id){
-           const tasks = await this.tasksService.getTask(Number(id))
-        return { tasks }
+    @Render('tasks')
+    async getTask(@Param('id') id,@Req() req,@Res() res){
+        const tasks = await this.getTasks(1)
+        res.cookie('current-task',id,{ httpOnly:true })
+        const task = await this.tasksService.getTask(Number(id))
+        return { task,tasks }
 
     }
 
     @Post('create')
     // @UseGuards(AuthenticatedGuard)
     @Render('tasks')
-    async createTask(@Req() req,@Body() task){
+    async createTask(@Req() req,@Body() body){
             const tasks = await this.tasksService.createTask({
-                ...task
+                ...body
             })
-        return { tasks }
-
+            const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
+            const task = await this.tasksService.getTask(taskId)
+        return { tasks,task }
     }
-    @Post('update')
+    @Post('update/:id')
     // @UseGuards(AuthenticatedGuard)
-    @Render('task')
-    async updateTask(@Body() body){
-        const { id,...task } = body
-        const tasks = await this.tasksService.updateTask(Number(id),task)
-        return { tasks }
+    @Render('tasks')
+    async updateTask(@Body() body,@Req() req ,@Param('id') id){
+        const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
+        let task = await this.tasksService.getTask(taskId)
+        const updated = {
+            ...task
+        }
+        updated.name = body.name
+        updated.description = body.description
+        const tasks = await this.tasksService.updateTask(Number(id),updated)
+        task = await this.tasksService.getTask(taskId)
+        return { tasks,task }
+    }
+    @Get('completed/:id')
+    // @UseGuards(AuthenticatedGuard)
+    @Render('tasks')
+    async markCompletedTask(@Param('id') id,@Req() req){
+        const tasks = await this.tasksService.markCompleted(Number(id))
+        const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
+        const task = await this.tasksService.getTask(taskId)
+        return { tasks,task }
+    }
 
+    @Get('delete/:id')
+    @Render('tasks')
+    async deleteTask(@Param('id') id,@Req() req){
+        const tasks = await this.tasksService.delete(Number(id),1)
+        const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
+        const task = await this.tasksService.getTask(taskId)
+        return { tasks,task }
     }
 }

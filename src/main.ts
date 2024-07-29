@@ -5,6 +5,7 @@ import { join } from 'path';
 import * as session from 'express-session'
 import * as passport from 'passport'
 import * as bodyParser from 'body-parser'
+import * as cookieParser from 'cookie-parser'
 
 
 async function bootstrap() {
@@ -15,6 +16,8 @@ async function bootstrap() {
 
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({extended:true}))
+
+  app.use(cookieParser())
 
   app.use(
     session({

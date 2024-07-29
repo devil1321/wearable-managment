@@ -39,4 +39,26 @@ export class TasksService extends PrismaClient {
         })
         return this.getTasks(updatedTask.user_id)
     }
+    async markCompleted(id){
+        const task = await this.task.findFirst({
+            where:{
+                id:id
+            },
+        })
+        if(task.completed){
+            task.completed = false
+        }else{
+            task.completed = true
+        }
+        const tasks = await this.updateTask(id,task)
+        return tasks
+    }
+    async delete(id,user_id){
+        await this.task.delete({
+            where:{
+                id:id
+            }
+        })
+        return await this.getTasks(user_id)
+    }
 }

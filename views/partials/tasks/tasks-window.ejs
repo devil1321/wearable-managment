@@ -1,12 +1,12 @@
 <div class="tasks-window mt-12 min-w-[48%] bg-neutral-800 p-5 rounded-md">
     <div class="tasks-window-inner-wrapper bg-neutral-900 rounded-md p-2">
-        <% tasks.forEach(task => { %>
-            <%- include('task',{ task:task }) %>
+        <% tasks.forEach(t => { %>
+            <%- include('task',{ t:t }) %>
         <% }) %>
     </div>
-    <form class="mt-5" action="">
+    <form class="mt-5" method="POST" action="/tasks/create" enctype="application/x-www-form-urlencoded">
         <label for="" class="block italic font-bold text-sm">Task Name:</label>
-        <input type="text" class="mt-2 w-[100%] bg-white rounded-md p-2 text-black">
+        <input name="name" type="text" class="mt-2 w-[100%] bg-white rounded-md p-2 text-black">
     </form>
     <button class="w-[100%] hover:bg-green-400 rounded-md bg-green-300 py-2 font-bold text-black mt-5">Add</button>
 </div>

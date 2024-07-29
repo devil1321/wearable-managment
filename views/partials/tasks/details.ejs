@@ -1,15 +1,17 @@
 <div class="min-w-[48%] mt-12 bg-neutral-800 p-5 rounded-md">
-    <form action="">
+    <form class="tasks-details-form" method="POST" enctype="application/x-www-form-urlencoded" action="/tasks/update/<%= task.id %>">
         <div class="details-form-field relative top-0 left-0">
+            <% if(task.completed){ %>
+                <div class="bg-green-300 w-[100%] font-bold text-center py-1 px-2 rounded-md italic text-black">Completed</div>
+            <% } else { %>
+                <div class="bg-orange-300 w-[100%] font-bold text-centerw py-1 px-2 rounded-md italic text-black">Pending</div>
+            <% } %>
             <label for="" class="block my-2 italic">Name:</label>
-            <input class="bg-neutral-900 p-2 w-[100%] rounded-md" type="text">
-            <div class="details-output">
-                
-            </div>
+            <input value="<%= task.name %>" name="name" class="taks-details-name bg-neutral-900 p-2 w-[100%] rounded-md" type="text">
         </div>
         <div class="details-form-field">
             <label for="" class="block my-2 italic"></a>Description:</label>
-            <textarea class="bg-neutral-900 p-2 rounded-md w-[100%] min-h-[230px]" name="" id=""></textarea>
+            <textarea class="tasks-details-textarea bg-neutral-900 p-2 rounded-md -w-[100%] min-h-[230px]" name="description" id=""><%= task.description %></textarea>
         </div>
         <button class="w-[100%] py-2 mt-2 bg-green-300 hover:bg-green-400 rounded-md font-bold text-black">Save</button>
     </form>
