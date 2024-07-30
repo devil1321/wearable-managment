@@ -7,11 +7,13 @@ export class TasksService extends PrismaClient {
         super()
     }
     async getTasks(user_id:number){
-        return await this.task.findMany({
+        const tasks = await this.task.findMany({
             where:{
                 user_id:user_id
             }
         })
+        const data = await tasks
+        return data.sort((a, b) => Number(a.completed) - Number(b.completed));
     }
     async getTask(id:number){
         return await this.task.findFirst({

@@ -20,57 +20,43 @@ export class TasksController {
 
     @Get('/:id')
     // @UseGuards(AuthenticatedGuard)
-    @Render('tasks')
     async getTask(@Param('id') id,@Req() req,@Res() res){
-        const tasks = await this.getTasks(1)
         res.cookie('current-task',id,{ httpOnly:true })
-        const task = await this.tasksService.getTask(Number(id))
-        return { task,tasks }
-
+        return res.redirect('/tasks')
     }
 
     @Post('create')
     // @UseGuards(AuthenticatedGuard)
-    @Render('tasks')
-    async createTask(@Req() req,@Body() body){
-            const tasks = await this.tasksService.createTask({
-                ...body
-            })
-            const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
-            const task = await this.tasksService.getTask(taskId)
-        return { tasks,task }
+    async createTask(@Req() req,@Res() res, @Body() body){
+        await this.tasksService.createTask({
+            ...body,
+            user_id:1
+        })
+        return res.redirect('/tasks')
     }
     @Post('update/:id')
     // @UseGuards(AuthenticatedGuard)
-    @Render('tasks')
-    async updateTask(@Body() body,@Req() req ,@Param('id') id){
+    async updateTask(@Body() body,@Req() req,@Res() res ,@Param('id') id){
         const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
-        let task = await this.tasksService.getTask(taskId)
+        const task = await this.tasksService.getTask(taskId)
         const updated = {
             ...task
         }
         updated.name = body.name
         updated.description = body.description
-        const tasks = await this.tasksService.updateTask(Number(id),updated)
-        task = await this.tasksService.getTask(taskId)
-        return { tasks,task }
+        await this.tasksService.updateTask(Number(id),updated)
+        return res.redirect('/tasks')
     }
     @Get('completed/:id')
     // @UseGuards(AuthenticatedGuard)
-    @Render('tasks')
-    async markCompletedTask(@Param('id') id,@Req() req){
-        const tasks = await this.tasksService.markCompleted(Number(id))
-        const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
-        const task = await this.tasksService.getTask(taskId)
-        return { tasks,task }
+    async markCompletedTask(@Param('id') id,@Req() req,@Res() res){
+        await this.tasksService.markCompleted(Number(id))
+        return res.redirect('/tasks')
     }
 
     @Get('delete/:id')
-    @Render('tasks')
-    async deleteTask(@Param('id') id,@Req() req){
-        const tasks = await this.tasksService.delete(Number(id),1)
-        const taskId = req.cookies['current-task'] ? Number(req.cookies['current-task']) : 1
-        const task = await this.tasksService.getTask(taskId)
-        return { tasks,task }
+    async deleteTask(@Param('id') id,@Req() req,@Res() res){
+        await this.tasksService.delete(Number(id),1)
+        return res.redirect('/tasks')
     }
 }
