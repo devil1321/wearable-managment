@@ -771,6 +771,11 @@ video {
   height: 95vh;
 }
 
+.max-h-max {
+  max-height: -moz-max-content;
+  max-height: max-content;
+}
+
 .min-h-\[100vh\] {
   min-height: 100vh;
 }
@@ -816,6 +821,14 @@ video {
   width: 8.333333%;
 }
 
+.w-\[30\%\] {
+  width: 30%;
+}
+
+.w-\[90\%\] {
+  width: 90%;
+}
+
 .min-w-\[100\%\] {
   min-width: 100%;
 }
@@ -850,6 +863,18 @@ video {
   max-width: max-content;
 }
 
+.max-w-\[90\%\] {
+  max-width: 90%;
+}
+
+.max-w-\[95\%\] {
+  max-width: 95%;
+}
+
+.max-w-\[98\%\] {
+  max-width: 98%;
+}
+
 .-translate-x-1\/2 {
   --tw-translate-x: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -867,6 +892,10 @@ video {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .items-start {
@@ -907,6 +936,10 @@ video {
 
 .overflow-x-clip {
   overflow-x: clip;
+}
+
+.overflow-x-scroll {
+  overflow-x: scroll;
 }
 
 .overflow-y-scroll {

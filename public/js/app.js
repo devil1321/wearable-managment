@@ -177,7 +177,9 @@ class Nav_Menu{
         }
     }
     activate = () =>{
-        this.activator.addEventListener('click',this.handleMenu)
+        if(this.activator){
+            this.activator.addEventListener('click',this.handleMenu)
+        }
     }
 }
 class SMTPSearch {
@@ -234,9 +236,11 @@ class SMTPSearch {
         })
     }
     activate = () =>{
-        this.input.addEventListener('input',async(e)=>await this.handleOutput(e))
-        this.input.addEventListener('focus',this.handleSearchActive)
-        this.input.addEventListener('blur',this.handleSearchActive)
+        if(this.input){
+            this.input.addEventListener('input',async(e)=>await this.handleOutput(e))
+            this.input.addEventListener('focus',this.handleSearchActive)
+            this.input.addEventListener('blur',this.handleSearchActive)
+        }
     }
 }
 class SMTPSForm {
@@ -260,6 +264,36 @@ class SMTPSForm {
         this.inputs.forEach(i => i.value = this.handleBigLetter(i.value))
         const smtp_provider_ui = app.smtp_provider_ui
         this.inputs.forEach(i => i.addEventListener('click',smtp_provider_ui.handleMenu))
+    }
+}
+
+class Emails {
+    constructor(){
+        this.items = document.querySelectorAll('.emails-inbox-item')
+        this.outputs = document.querySelectorAll('.emails-item-details-output')
+        this.emails = []
+    }
+    handleFetchEmails = async () =>{
+        const res = await fetch('/emails/json')
+        const data = await res.json()
+        return data
+    }
+    handleActive = async(e) =>{
+        const data =  await this.handleFetchEmails()
+        this.outputs.forEach(o => o.style.display = 'none')
+        const output = document.querySelector(`#emails-item-details-output-${e.target.id}`)
+        if(!output?.classList?.contains('--open')){
+            output?.classList?.add('--open')
+            output.style.display = 'block'
+        }else{
+            output?.classList?.remove('--open')
+            output.style.display = 'none'
+        }
+        const details = data.find(i => i.uid === Number(e.target.id))
+        output.innerHTML = `<div class="emails-item-details-output-header bg-neutral-800 p-2 rounded-md>From: ${details.from.html} Subject:${details.subject}</div>`+  details.mail
+    }
+    activate = () =>{
+        this.items.forEach(i => i.addEventListener('click',async(e)=> await this.handleActive(e)))
     }
 }
 
@@ -289,7 +323,8 @@ class Application {
             document.querySelector('.smtp-provider-form-menu')
         )
         this.smtp_search = new SMTPSearch()
-        this.smtp_form = new SMTPSForm()                
+        this.smtp_form = new SMTPSForm()     
+        this.emails_ui = new Emails()           
     }
     handleApp(){
         this.sidebar_ui.activate()
@@ -302,6 +337,7 @@ class Application {
         this.smtp_search.activate()
         this.smtp_provider_ui.activate()  
         this.smtp_form.activate()
+        this.emails_ui.activate()
     }
 }
 

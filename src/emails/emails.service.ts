@@ -89,7 +89,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
     const config = this.imapSettings[smtp.provider];
     const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
 
-    var imapConfig = {
+    const imapConfig = {
       imap: {
           user:smtp.email,
           password:pass,
@@ -100,7 +100,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
         }
       };
       const emails = await imaps.connect(imapConfig)
-              .then((connection:any) => {
+              .then((connection) => {
                   return connection.openBox('INBOX')
                       .then(() => {
                           let searchCriteria = ['1:50'];
@@ -108,8 +108,8 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
                           bodies: ['HEADER', 'TEXT', ''],
                       };
                       return connection.search(searchCriteria, fetchOptions)
-                      .then(async(messages:any) => {
-                          const emails:any = await Promise.all(messages.map(async(item:any) => {
+                      .then(async(messages) => {
+                          const emails = await Promise.all(messages.map(async(item) => {
                           let all = _.find(item.parts, { "which": "" })
                           let id = item.attributes.uid;
                           let idHeader = "Imap-Id: "+id+"\r\n";

@@ -1,4 +1,4 @@
-import { Controller, Get,Render, Req} from '@nestjs/common';
+import { Controller, Get,Render, Req, Res} from '@nestjs/common';
 import { EmailsService } from './emails.service';
 
 
@@ -14,5 +14,11 @@ export class EmailsController {
         return {
             emails:emails
         }
+    }
+    @Get('/json')
+    async getEmailsJSON(@Req() req, @Res() res){
+        const smtp_id = req.cookies['active-smtp'] ? Number(req.cookies['active-smtp']) : 0
+        const emails = await this.emailsService.fetchEmails(2)
+        res.json([...emails])
     }
 }
