@@ -1,0 +1,15 @@
+    <div class="smtp-main-items min-w-[100%] flex justify-between items-start">
+        <% if(smtps?.length > 0) { %>
+            <div class="min-w-1/2">
+            <div class="smtp-tab-names my-5 flex gap-5">
+                <h3 class="bg-neutral-800 p-3 rounded-md font-bold">ID</h3>
+                <h3 class="bg-neutral-800 p-3 rounded-md font-bold">Email</h3>
+                <h3 class="bg-neutral-800 p-3 rounded-md font-bold">Provider</h3>
+            </div>
+            <% smtps?.forEach((s)=>{ %>
+                <%- include('item', { item:s }) %>
+            <% }) %>
+        </div>
+        <% } %>
+        <%- include('form') %>
+    </div>

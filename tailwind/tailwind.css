@@ -10,4 +10,7 @@
         margin: 0px auto;
         color:white;
     }
+    .smtp-search-matches {
+        transition: opacity 150ms ease-in-out, top 150ms ease-in-out;
+    }
 }

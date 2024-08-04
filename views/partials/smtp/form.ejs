@@ -1,0 +1,23 @@
+<div class="block mx-4 <%- smtps.length > 0 ? 'min-w-[60%]' : 'sm:min-w-[300px] md:min-w-[600px] lg:min-w-[900px] xl:min-w-[1200px]' %>">
+    <h3 class="font-bold  italic text-2xl my-2">SMTP Details / Add SMTP</h3>
+    <form action="/smtps/register" method="post" enctype="application/x-www-form-urlencoded" class="smtps-form px-12 min-h-[350px] py-4 bg-neutral-800 rounded-md">
+        <label for="" class="block italic font-bold">Email:</label>
+        <div class="smtp-form-field bg-neutral-700 my-2 rounded-md">
+            <input type="email" name="email" class="p-2 outline-none bg-transparent rounded-md">
+        </div>
+        <label for="" class="block italic font-bold">Password:</label>
+        <div class="smtp-form-field bg-neutral-700 my-2 rounded-md">
+            <input placeholder="If Gmail Type Google App Password" type="text" name="password" class="p-2 outline-none bg-transparent rounded-md">
+        </div>
+        <div class="relative top-0 left-0">
+            <label for="" class="block italic font-bold mb-2">Provider:</label>
+            <div class="smtp-provider-form-current cursor-pointer hover:bg-green-300 rounded-md relative bg-neutral-700 font-bold p-2">Google</div>
+            <div class="smtp-provider-form-menu h-[250px] overflow-y-scroll transition-all translate-y-6 hidden opacity-0 left-1/2 -translate-x-1/2 absolute bg-neutral-800 p-2 top-18 w-[100%] bg-neutral-800 rounded-md">
+                <% providers?.forEach(i => { %>
+                    <input class="smtp-provider-input block w-[100%] bg-neutral-700 hover:bg-green-300 font-bold italic cursor-pointer my-1 rounded-md p-2" value="<%= i %>" name="provider" />
+                <% }) %>
+                </div>
+            </div>
+            <button class="py-2 mt-2 font-bold w-[100%] bg-green-300 hover:bg-green-600 rounded-md">Add / Save</button>
+        </form>
+</div>

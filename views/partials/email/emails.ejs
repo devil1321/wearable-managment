@@ -1,0 +1,10 @@
+<div class="emails">
+    <div class="flex items-center gap-5">
+        <div class="font-bold p-2 bg-neutral-800 rounded-md">ID</div>
+        <div class="font-bold p-2 bg-neutral-800 rounded-md">From</div>
+        <div class="font-bold p-2 bg-neutral-800 rounded-md">Subject</div>
+    </div>
+    <% emails?.forEach(e =>{ %>
+        <%- include('item', { item:e }) %>
+    <% }) %>
+</div>

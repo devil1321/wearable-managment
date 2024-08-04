@@ -8,8 +8,9 @@ export class EmailsController {
     @Get('')
     @Render('emails')
     async getEmails(@Req() req){
-        const smtp_id = req.cookies['smtp-id'] ? Number(req.cookies['smtp-id']) : 0
-        const emails = await this.emailsService.fetchEmails(smtp_id)
+        const smtp_id = req.cookies['active-smtp'] ? Number(req.cookies['active-smtp']) : 0
+        const emails = await this.emailsService.fetchEmails(2)
+        console.log(emails)
         return {
             emails:emails
         }

@@ -8,7 +8,7 @@ export class SmtpService extends PrismaClient implements OnModuleDestroy, OnModu
     constructor(){
         super()
         this.smtpSettings = {
-            gmail: { host: 'smtp.gmail.com', port: 587, secure: false },
+            gmail:{ host: 'smtp.gmail.com',port: 587,secure: false },
             outlook: { host: 'smtp-mail.outlook.com', port: 587, secure: false },
             yahoo: { host: 'smtp.mail.yahoo.com', port: 587, secure: false },
             icloud: { host: 'smtp.mail.me.com', port: 587, secure: false },
@@ -19,10 +19,10 @@ export class SmtpService extends PrismaClient implements OnModuleDestroy, OnModu
             aol: { host: 'smtp.aol.com', port: 587, secure: false },
           }
         this.imapSettings = {
-            gmail: {
-              host: 'imap.gmail.com',
-              port: 993,
-              secure: true,
+            gmail:{
+                host: 'imap.gmail.com',
+                port: 993,
+                secure: true, 
             },
             outlook: {
               host: 'outlook.office365.com',
@@ -72,18 +72,36 @@ export class SmtpService extends PrismaClient implements OnModuleDestroy, OnModu
         async onModuleDestroy() {
             await this.$disconnect()
         }
-        async registerSMTP(email:string,password:string,provider:string,user_id:number){
-            const smtp_creation = {
-                email:email,
-                password:cryptography.default.encrypt(password).encryptedData,
-                provider:provider,
-                user_id:user_id
-            }
-            const Smtp = await this.sMTP.create({
-                data:smtp_creation
-            })
-            return Smtp
-        }
+        async registerSMTP(email: string, password: string, provider: string, user_id: number) {
+          // Encrypt the password
+          const encrypt = cryptography.default.encrypt(password);
+      
+          // Check if user_id is a valid number
+          if (typeof user_id === 'number') {
+              // Prepare data for creation
+              const smtp_creation = {
+                  email: email,
+                  password: encrypt.encryptedData,
+                  provider: provider,
+                  user_id: user_id,
+                  vi:encrypt.iv
+              };
+      
+              // Create SMTP record
+              try {
+                  const SMTP = await this.sMTP.create({
+                      data:smtp_creation
+                  });
+      
+                  return SMTP;
+              } catch (error) {
+                  console.error('Error creating SMTP record:', error);
+                  throw new Error('Could not create SMTP record');
+              }
+          } else {
+              throw new Error('Invalid user_id');
+          }
+      }
         async getSMTPS(user_id:number){
             const providers = await this.sMTP.findMany({
                 where:{
@@ -113,9 +131,7 @@ export class SmtpService extends PrismaClient implements OnModuleDestroy, OnModu
                 where:{
                     id:id
                 },
-                data:{
-                    ...smtp
-                }
+                data:smtp
             })
             return updated
         }

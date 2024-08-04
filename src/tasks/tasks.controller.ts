@@ -18,6 +18,13 @@ export class TasksController {
         return { tasks,task }
     }
 
+    @Get('json')
+    // @UseGuards(AuthenticatedGuard)
+    async getTasksJson(@Req() req,@Res() res){
+        const tasks = await this.tasksService.getTasks(1)
+        res.json([...tasks])
+    }
+
     @Get('/:id')
     // @UseGuards(AuthenticatedGuard)
     async getTask(@Param('id') id,@Req() req,@Res() res){

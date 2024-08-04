@@ -32,13 +32,13 @@ class Sidebar {
         if(!this.booleans.isSidebarOpen){
             this.sidebar.classList.remove('w-[55px]')
             this.sidebar.classList.add('w-1/5')
-            this.innerContainer.classList.add('min-w-[80%]')
+            this.innerContainer.classList.add('min-w-[82%]')
             this.innerContainer.classList.remove('min-w-[97%]')
             this.booleans.isSidebarOpen = true
         }else{
             this.sidebar.classList.remove('w-1/5')
             this.sidebar.classList.add('w-[55px]')
-            this.innerContainer.classList.remove('min-w-[80%]')
+            this.innerContainer.classList.remove('min-w-[82%]')
             this.innerContainer.classList.add('min-w-[97%]')
             this.booleans.isSidebarOpen = false
         }
@@ -95,12 +95,24 @@ class Search{
 
     handleFetchData = async () =>{
         const type = new Nav().nav_type_menu_activator.textContent.toLocaleLowerCase()
-        const res = await fetch(`/search/${type}`)
+        const res = await fetch(`/${type}/json`)
         const data = await res.json()
-        this.data = data    
+        switch(type){
+            case 'tasks':
+                return [...data.map(t => t.name)]
+            case 'emails':
+                return [...data.map(t => t.email)]
+            case 'chat':
+                return [...data.map(t => t.email)]
+            default:
+                return [...data.map(t => t.name)]
+        }
     }
 
-    handleFillMatches = () =>{
+    handleFillMatches = async(e) =>{
+        this.data = await this.handleFetchData()
+        const regex = new RegExp(`^${e.target.value}`,'gi')
+        this.data = this.data.filter(i => regex.test(i))
         this.search_matches.innerHTML = ''
         this.data.forEach(match => {
             const type = new Nav().nav_type_menu_activator.textContent.toLocaleLowerCase()
@@ -117,9 +129,6 @@ class Search{
             this.booleans.isSearching = true
             this.search_matches.classList.remove('hidden')
             setTimeout(() => {
-                    if(this.data.length > 0){
-                        this.handleFillMatches()
-                    }
                     this.search_matches.classList.add('px-2')
                     this.search_matches.classList.add('py-3')
                     this.search_matches.classList.remove('opacity-0')
@@ -137,7 +146,7 @@ class Search{
     activate = () =>{
         this.input.addEventListener('focus',this.handleSearchActive)
         this.input.addEventListener('blur',this.handleSearchActive)
-        this.input.addEventListener('input',async() => await this.handleFetchData())
+        this.input.addEventListener('input',async(e) => await this.handleFillMatches(e))
     }
 }
 class Nav_Menu{
@@ -171,6 +180,88 @@ class Nav_Menu{
         this.activator.addEventListener('click',this.handleMenu)
     }
 }
+class SMTPSearch {
+    constructor(){
+        this.input = document.querySelector('.smtp-search-input')
+        this.search_matches = document.querySelector('.smtp-search-matches')
+        this.data = []
+        this.booleans = {
+            isSearching:false
+        }
+    }
+    createMatch(match){
+        const anchor = document.createElement('a')
+        anchor.href = `/smtps/${match.id}`
+        anchor.classList = 'smtp-search-menu-item hover:text-black block hover:bg-green-300 p-2 rounded-md font-bold'
+        anchor.textContent = match.email
+        return anchor
+    }
+    async handleFetchSmtps(){
+        const res = await fetch('/smtps/json')
+        const data = await res.json()
+        return data
+    }
+    handleSearchActive = () => {
+        if(!this.booleans.isSearching){
+            this.booleans.isSearching = true
+            this.search_matches.classList.remove('hidden')
+            setTimeout(() => {
+                    this.search_matches.classList.add('px-2')
+                    this.search_matches.classList.add('py-3')
+                    this.search_matches.classList.remove('opacity-0')
+                    this.search_matches.classList.remove('top-[75px]')
+                    this.search_matches.classList.add('top-[50px]')
+
+            }, 1);
+        }else{
+            this.booleans.isSearching = false
+            this.search_matches.classList.add('hidden')
+            this.search_matches.classList.add('opacity-0')
+            this.search_matches.classList.remove('top-[50px]')
+            this.search_matches.classList.add('top-[75px]')
+            this.search_matches.classList.remove('px-2')
+            this.search_matches.classList.remove('py-3')
+        }
+    }
+    handleOutput = async(e) =>{
+        this.search_matches.innerHTML = ''
+        const regex = new RegExp(`^${e.target.value}`,'gi')
+        this.data = await this.handleFetchSmtps()
+        this.data = this.data.filter(m => regex.test(m.email))
+        this.data.forEach(m =>{
+            const el = this.createMatch(m)
+            this.search_matches.append(el)
+        })
+    }
+    activate = () =>{
+        this.input.addEventListener('input',async(e)=>await this.handleOutput(e))
+        this.input.addEventListener('focus',this.handleSearchActive)
+        this.input.addEventListener('blur',this.handleSearchActive)
+    }
+}
+class SMTPSForm {
+    constructor(){
+        this.form = document.querySelectorAll('.smtps-form')
+        this.current_provider = document.querySelector('.smtp-provider-form-current')
+        this.main_input = document.querySelector('.smtp-provider-input')
+        this.inputs = document.querySelectorAll('.smtp-provider-form-menu input')
+    }
+    handleActive = (e) =>{
+        this.current_provider.textContent = e.target.value
+        this.main_input.value = e.target.value
+    }
+    handleBigLetter = (string) =>{
+        const start_letter = string.slice(0,1).toLocaleUpperCase()
+        const rest = string.slice(1,string.length)
+        return start_letter + rest
+    }
+    activate = () =>{
+        this.inputs.forEach(i =>i.addEventListener('click',this.handleActive))
+        this.inputs.forEach(i => i.value = this.handleBigLetter(i.value))
+        const smtp_provider_ui = app.smtp_provider_ui
+        this.inputs.forEach(i => i.addEventListener('click',smtp_provider_ui.handleMenu))
+    }
+}
 
 class Application {
     constructor(){
@@ -186,9 +277,19 @@ class Application {
                                 document.querySelector('.nav-chat-menu')
                             )
         this.profile_ui = new Nav_Menu(
-                                document.querySelector('.nav-profile-icon-wrapper'),
-                                document.querySelector('.nav-profile-menu')
+            document.querySelector('.nav-profile-icon-wrapper'),
+            document.querySelector('.nav-profile-menu')
+        )
+        this.provider_ui = new Nav_Menu(
+                                document.querySelector('.search-provider-current'),
+                                document.querySelector('.search-provider-menu')
                             )
+        this.smtp_provider_ui = new Nav_Menu(
+            document.querySelector('.smtp-provider-form-current'),
+            document.querySelector('.smtp-provider-form-menu')
+        )
+        this.smtp_search = new SMTPSearch()
+        this.smtp_form = new SMTPSForm()                
     }
     handleApp(){
         this.sidebar_ui.activate()
@@ -197,6 +298,10 @@ class Application {
         this.notifications_ui.activate()
         this.chat_ui.activate()
         this.profile_ui.activate()
+        this.provider_ui.activate()
+        this.smtp_search.activate()
+        this.smtp_provider_ui.activate()  
+        this.smtp_form.activate()
     }
 }
 
