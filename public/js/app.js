@@ -272,6 +272,10 @@ class Emails {
         this.items = document.querySelectorAll('.emails-inbox-item')
         this.outputs = document.querySelectorAll('.emails-item-details-output')
         this.emails = []
+        this.form = document.querySelector('.emails-send-form')
+        this.smtp_input = document.querySelector('.emails-smtp-input')
+        this.smtp_links = document.querySelectorAll('.emails-smtp-link')
+        this.isSendingBtn = document.querySelector('.emails-is-sending-btn')
     }
     handleFetchEmails = async () =>{
         const res = await fetch('/emails/json')
@@ -291,8 +295,31 @@ class Emails {
         }
         const details = data.find(i => i.uid === Number(e.target.id))
         output.innerHTML = `<div class="emails-item-details-output-header bg-neutral-800 p-2 rounded-md>From: ${details.from.html} Subject:${details.subject}</div>`+  details.mail
+        await this.handleMarkSeen(e.target.id)
+    }
+    handleMarkSeen = async(uid) =>{
+        await fetch('/emails/mark/seen' + uid)
+    }
+    handleLink = (e) =>{
+        this.smtp_input.value = e.target.value
+    }
+    handleForm = () =>{
+        if(!this.form.classList.contains('--open')){
+            this.form.classList.remove('hidden')
+            this.form.classList.add('--open')
+        }else{
+            this.form.classList.add('hidden')
+            this.form.classList.remove('--open')
+        }
     }
     activate = () =>{
+        this.form.addEventListener('submit',(e)=>{
+            setTimeout(()=>{
+                this.form.reset()
+            },1000)
+        })
+        this.isSendingBtn.addEventListener('click',this.handleForm)
+        this.smtp_links.forEach(l => l.addEventListener('click',(e) => this.handleLink(e)))
         this.items.forEach(i => i.addEventListener('click',async(e)=> await this.handleActive(e)))
     }
 }

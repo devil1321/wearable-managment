@@ -1,5 +1,32 @@
 <div class="emails max-w-[95%]">
-    <div class="flex items-center gap-5 max-h-max">
+    <button class="emails-is-sending-btn w-[100%] py-2 text-black bg-green-300 rounded-md font-bold my-2 hover:bg-green-600 hover:text-white">Send Email</button>
+    <form action="" class="emails-send-form hidden">
+        <div class="search-provider mx-1 relative top-0 left-0">
+            <div class="search-provider-current cursor-pointer font-bold bg-neutral-800 rounded-md px-5 py-2">
+                <input class="emails-smtp-input bg-transparent" type="text" name="provider" value="<%= active_smtp.provider %>" />
+            </div>
+            <div class="search-provider-menu w-[100%] transition-all translate-y-6 opacity-0 hidden bg-neutral-800 rounded-md px-3 py-2 absolute top-12 left-1/2 -translate-x-1/2">
+                <% smtps?.forEach((s)=>{ %>
+                    <div class="emails-smtp-link cursor-pointer hover:text-black block hover:bg-green-300 p-2 rounded-md font-bold"><%= s.provider %></div>                
+                <% }) %>
+            </div>
+        </div>
+        <label for="" class="block font-bold italic">To:</label>
+        <div class="emails-form-field bg-neutral-800 rounded-md my-2">
+            <input type="text" class="bg-transparent p-2">
+        </div>
+        <label for="" class="block font-bold italic">Subject</label>
+        <div class="emails-form-field bg-neutral-800 rounded-md my-2">
+            <input type="text" name="" id="" class="bg-transparent p-2">
+        </div>
+        <label for="" class="block font-bold italic">Message:</label>
+        <div class="emails-form-field bg-neutral-800 rounded-md my-2">
+            <textarea class="bg-transparent p-2 w-[100%] h-[100%]" rows="" cols=""></textarea>
+        </div>
+        <button class="p-2 w-[100%] my-2 text-black rounded-md bg-green-300 font-bold hover:bg-green-600">Send</button>
+    </form>
+
+    <div class="flex items-start gap-5 max-h-max">
         <div class="font-bold p-2 bg-neutral-800 rounded-md">ID</div>
         <div class="font-bold p-2 bg-neutral-800 rounded-md">From</div>
         <div class="font-bold p-2 bg-neutral-800 rounded-md">Subject</div>

@@ -133,6 +133,144 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
      return emails
     
   }
+  getUnseen = async(id) =>{
+
+    const smtp = await this.sMTP.findFirst({
+      where: { id: id },
+    });
+    const config = this.imapSettings[smtp.provider];
+    const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
+
+    const imapConfig = {
+      imap: {
+          user:smtp.email,
+          password:pass,
+          host:config.host,
+          port: config.port,
+          tls: true,
+          tlsOptions: { rejectUnauthorized:false },
+        }
+      };
+
+    const emails = await imaps.connect(imapConfig)
+            .then((connection:any) => {
+                return connection.openBox('INBOX')
+                    .then(() => {
+                            // Fetch emails from the last 24h
+                        const delay = 24 * 3600 * 1000;
+                        let yesterday:any = new Date();
+                        yesterday.setTime(Date.now() - delay);
+                        yesterday = yesterday.toISOString();
+                        const searchCriteria = ['UNSEEN', ['SINCE', yesterday]];
+                        let fetchOptions = {
+                        bodies: ['HEADER', 'TEXT', ''],
+                    };
+                    return connection.search(searchCriteria, fetchOptions)
+                    .then(async(messages:any) => {
+                        const emails:any = await Promise.all(messages.map(async(item:any) => {
+                        let all = _.find(item.parts, { "which": "" })
+                        let id = item.attributes.uid;
+                        let idHeader = "Imap-Id: "+id+"\r\n";
+                        const mail = await simpleParser(idHeader+all.body)
+                        return {
+                            id:mail.messageId,
+                            uid:id,
+                            date:mail.date,
+                            from:mail.from,
+                            subject:mail.subject,
+                            mail:mail.html,
+                        }
+                    }))
+                        return emails
+                    })
+                }) 
+            })
+            .then((emails:any) => emails)
+            .catch((err:any) => console.log(err))
+            return emails
+  }
+  markEmailRead = async(id,uid) =>{
+
+    const smtp = await this.sMTP.findFirst({
+      where: { id: id },
+    });
+    const config = this.imapSettings[smtp.provider];
+    const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
+
+    const imapConfig = {
+      imap: {
+          user:smtp.email,
+          password:pass,
+          host:config.host,
+          port: config.port,
+          tls: true,
+          tlsOptions: { rejectUnauthorized:false },
+        }
+      };
+
+    imaps.connect(imapConfig)
+    .then((connection:any) => {
+            connection.openBox('INBOX')
+                .then(() => {
+                    let searchCriteria = ['ALL'];
+                    let fetchOptions = {
+                    bodies: ['HEADER', 'TEXT', ''],
+                };
+                connection.search(searchCriteria, fetchOptions)
+                .then(async(messages:any) => {
+                    const emails:any = await Promise.all(messages.map(async(item:any) => item))
+                    const email = emails.find((e:any) => e.attributes.uid === uid)
+                    connection.addFlags(email.attributes.uid, "\Seen", (err:any) => {
+                        if (err){
+                            console.log(err); 
+                        }
+                       return 'Email Seen'
+                    })
+                })
+            }) 
+        })
+        .catch((err:any) => console.log(err))
+  }
+  removeEmail = async(id,uid)=>{
+    const smtp = await this.sMTP.findFirst({
+      where: { id: id },
+    });
+    const config = this.imapSettings[smtp.provider];
+    const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
+
+    const imapConfig = {
+      imap: {
+          user:smtp.email,
+          password:pass,
+          host:config.host,
+          port: config.port,
+          tls: true,
+          tlsOptions: { rejectUnauthorized:false },
+        }
+      };
+    imaps.connect(imapConfig)
+    .then((connection:any) => {
+            connection.openBox('INBOX')
+                .then(() => {
+                    let searchCriteria = ['ALL'];
+                    let fetchOptions = {
+                    bodies: ['HEADER', 'TEXT', ''],
+                };
+                connection.search(searchCriteria, fetchOptions)
+                .then(async(messages:any) => {
+                    const emails:any = await Promise.all(messages.map(async(item:any) => item))
+                    const email = emails.find((e:any) => e.attributes.uid === uid)
+                    connection.addFlags(email.attributes.uid, "\Deleted", (err:any) => {
+                        if (err){
+                            console.log(err); 
+                        }
+                       return 'Email Deleted'
+                    })
+                })
+            }) 
+        })
+        .catch((err:any) => console.log(err))
+  }
   async sendMail(options) {
     const { user_id, provider, to, subject, html } = options;
     const smtps = await this.sMTP.findMany({
@@ -164,10 +302,10 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
       html: html,
     };
     try {
-      const info = await transporter.sendMail(mailOptions);
-      return `Message sent: ${info.messageId}`;
+      await transporter.sendMail(mailOptions);
+      return true
     } catch (error) {
-      return `Error sending email: ${error}`;
+      return false
     }
   }
 }

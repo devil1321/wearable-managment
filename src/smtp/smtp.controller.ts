@@ -1,40 +1,6 @@
 import { Body, Controller, Get, Param, Post, Render, Req, Res } from '@nestjs/common';
 import { SmtpService } from './smtp.service';
 
-const tmpSmtps = [
-    {
-        id:1,
-        email:'s.dominik1321@gmail.com',
-        password:'ddd',
-        provider:'gmail',
-        user_id:1
-    }, {
-        id:1,
-        email:'s.dominik1321@gmail.com',
-        password:'ddd',
-        provider:'gmail',
-        user_id:1
-    }, {
-        id:1,
-        email:'s.dominik1321@gmail.com',
-        password:'ddd',
-        provider:'gmail',
-        user_id:1
-    }, {
-        id:1,
-        email:'s.dominik1321@gmail.com',
-        password:'ddd',
-        provider:'gmail',
-        user_id:1
-    }, {
-        id:1,
-        email:'s.dominik1321@gmail.com',
-        password:'ddd',
-        provider:'gmail',
-        user_id:1
-    },
-]
-
 @Controller('smtps')
 export class SmtpController {
     constructor(private smtpService:SmtpService){}
@@ -50,7 +16,7 @@ export class SmtpController {
     @Get('/json')
     async getSMTPJSON(@Res() res){
         const smtps = await this.smtpService.getSMTPS(1)
-        res.json([...tmpSmtps])
+        res.json([...smtps])
     }
 
     @Get('/:id')
