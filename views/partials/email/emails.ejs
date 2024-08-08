@@ -3,11 +3,11 @@
     <form action="" class="emails-send-form hidden">
         <div class="search-provider mx-1 relative top-0 left-0">
             <div class="search-provider-current cursor-pointer font-bold bg-neutral-800 rounded-md px-5 py-2">
-                <input class="emails-smtp-input bg-transparent" type="text" name="provider" value="<%= active_smtp.provider %>" />
+                <input class="emails-smtp-input bg-transparent" type="text" name="provider" value="<%= active_smtp?.provider %>" />
             </div>
             <div class="search-provider-menu w-[100%] transition-all translate-y-6 opacity-0 hidden bg-neutral-800 rounded-md px-3 py-2 absolute top-12 left-1/2 -translate-x-1/2">
                 <% smtps?.forEach((s)=>{ %>
-                    <div class="emails-smtp-link cursor-pointer hover:text-black block hover:bg-green-300 p-2 rounded-md font-bold"><%= s.provider %></div>                
+                    <div class="emails-smtp-link cursor-pointer hover:text-black block hover:bg-green-300 p-2 rounded-md font-bold"><%= s?.provider %></div>                
                 <% }) %>
             </div>
         </div>
@@ -30,8 +30,18 @@
         <div class="font-bold p-2 bg-neutral-800 rounded-md">ID</div>
         <div class="font-bold p-2 bg-neutral-800 rounded-md">From</div>
         <div class="font-bold p-2 bg-neutral-800 rounded-md">Subject</div>
+        <div class="font-bold cursor-pointer p-2 bg-neutral-800 rounded-md relative top-0 left-0">
+           <div class="emails-current-fetch">All</div>
+           <div class="emails-fetch-menu transition-all translate-y-6 hidden opacity-0 w-max font-bold p-2 bg-neutral-800 rounded-md absolute top-12 left-0">
+                <div data-fetch = 'all' class="emails-fetch-menu-item hover:bg-green-300 cursor-pointer rounded-md p-2">All</div>
+                <div data-fetch = 'unseen' class="emails-fetch-menu-item hover:bg-green-300 cursor-pointer rounded-md p-2">Unseen From Yesterday</div>
+           </div>
+        </div>
+
     </div>
-    <% emails?.forEach(e =>{ %>
-        <%- include('item', { item:e }) %>
-    <% }) %>
+    <div class="emails-main-items">
+        <% emails?.forEach(e =>{ %>
+            <%- include('item', { item:e }) %>
+        <% }) %>
+    </div>
 </div>

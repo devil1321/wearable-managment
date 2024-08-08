@@ -153,7 +153,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
       };
 
     const emails = await imaps.connect(imapConfig)
-            .then((connection:any) => {
+            .then((connection) => {
                 return connection.openBox('INBOX')
                     .then(() => {
                             // Fetch emails from the last 24h
@@ -166,8 +166,8 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
                         bodies: ['HEADER', 'TEXT', ''],
                     };
                     return connection.search(searchCriteria, fetchOptions)
-                    .then(async(messages:any) => {
-                        const emails:any = await Promise.all(messages.map(async(item:any) => {
+                    .then(async(messages) => {
+                        const emails = await Promise.all(messages.map(async(item) => {
                         let all = _.find(item.parts, { "which": "" })
                         let id = item.attributes.uid;
                         let idHeader = "Imap-Id: "+id+"\r\n";
@@ -185,8 +185,6 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
                     })
                 }) 
             })
-            .then((emails:any) => emails)
-            .catch((err:any) => console.log(err))
             return emails
   }
   markEmailRead = async(id,uid) =>{
@@ -209,7 +207,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
       };
 
     imaps.connect(imapConfig)
-    .then((connection:any) => {
+    .then((connection) => {
             connection.openBox('INBOX')
                 .then(() => {
                     let searchCriteria = ['ALL'];
@@ -248,8 +246,8 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
           tlsOptions: { rejectUnauthorized:false },
         }
       };
-    imaps.connect(imapConfig)
-    .then((connection:any) => {
+      try{
+    const connection = await imaps.connect(imapConfig)
             connection.openBox('INBOX')
                 .then(() => {
                     let searchCriteria = ['ALL'];
@@ -257,10 +255,10 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
                     bodies: ['HEADER', 'TEXT', ''],
                 };
                 connection.search(searchCriteria, fetchOptions)
-                .then(async(messages:any) => {
-                    const emails:any = await Promise.all(messages.map(async(item:any) => item))
-                    const email = emails.find((e:any) => e.attributes.uid === uid)
-                    connection.addFlags(email.attributes.uid, "\Deleted", (err:any) => {
+                .then(async(messages) => {
+                    const emails = await Promise.all(messages.map(async(item) => item))
+                    const email = emails.find((e) => e.attributes.uid === uid)
+                    connection.addFlags(email.attributes.uid, "\Deleted", (err) => {
                         if (err){
                             console.log(err); 
                         }
@@ -268,8 +266,10 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
                     })
                 })
             }) 
-        })
-        .catch((err:any) => console.log(err))
+        
+      }catch(err){
+        console.log(err)
+      }
   }
   async sendMail(options) {
     const { user_id, provider, to, subject, html } = options;

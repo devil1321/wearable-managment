@@ -269,6 +269,23 @@ class SMTPSForm {
 
 class Emails {
     constructor(){
+        this.emails_main_items = document.querySelector('.emails-main-items')
+        this.itemHTML = function(item){
+            const bodyRegex = /<body[^>]*>([\s\S]*?)<\/body>/i
+            const mail = item.mail.match(bodyRegex)
+            return `<div id="${item.uid}" class="emails-inbox-item hover:bg-neutral-800 p-2 rounded-md flex flex-wrap gap-3 my-2 justify-start items-stretch max-h-max">
+                        <div class="w-1/12 flex justify-center items-center bg-orange-300 font-bold text-white rounded-md p-2">${item.uid}</div>
+                        <div class="w-[40%] flex justify-center items-center bg-blue-300 font-bold text-white rounded-md p-2">${item.from.html}</div>
+                        <div class="w-1/3 flex justify-center items-center bg-green-300 font-bold text-white rounded-md p-2">${item.subject}</div>
+                            <a href="/emails/delete/${item.uid}" class="w-1/12 flex justify-center items-center bg-red-600 hover:bg-red-900 font-bold text-white rounded-md p-2">
+                                <i class="fa fa-trash fa-2x"></i>
+                            </a>
+                        <div id="emails-item-details-output-${item.uid}" class="emails-item-details-output  mx-auto max-w-[90%] overflow-x-scroll hidden bg-white rounded-md p-2 w-[90%]">
+                            <div class="emails-item-details-output-header bg-neutral-800 p-2 rounded-md>From: ${item.from.html} Subject:${item.subject}</div>  
+                            <div>${mail[1]}</div>
+                        </div>
+                    </div>`
+        }
         this.items = document.querySelectorAll('.emails-inbox-item')
         this.outputs = document.querySelectorAll('.emails-item-details-output')
         this.emails = []
@@ -276,6 +293,9 @@ class Emails {
         this.smtp_input = document.querySelector('.emails-smtp-input')
         this.smtp_links = document.querySelectorAll('.emails-smtp-link')
         this.isSendingBtn = document.querySelector('.emails-is-sending-btn')
+        this.current_fetch = document.querySelector('.emails-current-fetch')
+        this.fetch_menu = document.querySelector('.emails-fetch-menu')
+        this.fetch_items = document.querySelectorAll('.emails-fetch-menu-item');
     }
     handleFetchEmails = async () =>{
         const res = await fetch('/emails/json')
@@ -312,12 +332,46 @@ class Emails {
             this.form.classList.remove('--open')
         }
     }
+    handleFetchMenuOpen = () =>{
+        if(!this.fetch_menu.classList.contains('--open')){
+            this.fetch_menu.classList.add('--open')
+            this.fetch_menu.classList.remove('hidden')
+            setTimeout(() => {
+                this.fetch_menu.classList.remove('opacity-0')
+                this.fetch_menu.classList.remove('translate-y-6')
+            }, 1);
+        }
+    }
+    handleFetchMenuFetchAndClose = async(e) =>{
+        if(this.fetch_menu.classList.contains('--open')){
+            this.fetch_menu.classList.remove('--open')
+            this.fetch_menu.classList.add('opacity-0')
+            this.fetch_menu.classList.add('translate-y-6')
+            setTimeout(() => {
+                this.fetch_menu.classList.add('hidden')
+            }, 1000);
+        }
+        this.current_fetch.textContent = e.target.dataset.fetch === 'all' ? 'All' : 'Unseen'
+        const res = await fetch(`/emails${e.target.dataset.fetch === 'all' ? '' : '/unseen'}/json`)
+        const data = await res.json()
+        this.emails_main_items.innerHTML = ''
+        let htmlString = ''
+        data?.forEach(email =>{
+            htmlString += this.itemHTML(email)
+        })
+        this.emails_main_items.innerHTML = htmlString
+        this.outputs = document.querySelectorAll('.emails-item-details-output')
+        this.items = document.querySelectorAll('.emails-inbox-item')
+        this.activate()
+    }
     activate = () =>{
         this.form.addEventListener('submit',(e)=>{
             setTimeout(()=>{
                 this.form.reset()
             },1000)
         })
+        this.current_fetch.addEventListener('click',this.handleFetchMenuOpen)
+        this.fetch_items.forEach(i => i.addEventListener('click',(e) => this.handleFetchMenuFetchAndClose(e)))
         this.isSendingBtn.addEventListener('click',this.handleForm)
         this.smtp_links.forEach(l => l.addEventListener('click',(e) => this.handleLink(e)))
         this.items.forEach(i => i.addEventListener('click',async(e)=> await this.handleActive(e)))
