@@ -84,7 +84,8 @@ export class SmtpService extends PrismaClient implements OnModuleDestroy, OnModu
                   password: encrypt.encryptedData,
                   provider: provider,
                   user_id: user_id,
-                  vi:encrypt.iv
+                  vi:encrypt.iv,
+                  is_active:false
               };
       
               // Create SMTP record

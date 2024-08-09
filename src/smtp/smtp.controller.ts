@@ -44,8 +44,8 @@ export class SmtpController {
         const tmpSmtp = {
             ...smtp
         }
-        tmpSmtp.is_active = true   
-        await this.smtpService.updateSMTP(tmpSmtp.id,tmpSmtp)
+        const updated = {...tmpSmtp,is_active:true} 
+        await this.smtpService.updateSMTP(updated.id,updated)
         res.cookie('active-smtp',id,{ httpOnly:true })
         return res.redirect('/smtps')
     }

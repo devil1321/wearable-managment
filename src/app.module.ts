@@ -10,9 +10,10 @@ import { PassportModule } from '@nestjs/passport';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { EmailsModule } from './emails/emails.module';
 import { SmtpModule } from './smtp/smtp.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [AuthModule,AnalyticsModule,EmailsModule,SmtpModule,TasksModule,OrdersModule,ChatModule,ProfileModule,PassportModule.register({ defaultStrategy: 'local' })],
+  imports: [AuthModule,UsersModule,AnalyticsModule,EmailsModule,SmtpModule,TasksModule,OrdersModule,ChatModule,ProfileModule,PassportModule.register({ defaultStrategy: 'local' })],
   controllers: [AppController],
   providers: [AppService],
 })

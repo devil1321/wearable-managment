@@ -13,8 +13,12 @@
                 <%- include('partials/global/sidebar') %>
                 <div class="main-wrapper min-w-[97%] transition-all">
                     <%- include('partials/global/nav/nav-main') %>
-                    <div class="chat-main  px-12  h-[95vh] flex justify-between items-start">
-                        chat
+                    <div class="chat-main px-12 h-[95vh] flex flex-wrap justify-between items-start">
+                        <%- include('partials/chat/nav') %>
+                        <div class="chat-content-wrapper -mt-[100px] w-[100%] flex justify-between items-start  ">
+                            <%- include('partials/chat/window') %>
+                            <%- include('partials/chat/users') %>
+                        </div>
                     </div>
                     <%- include('partials/global/footer') %>
                 </div>

@@ -1,3 +1,4 @@
+
 class Cookie {
     static cookies = document.cookie.split(";")
     static getCookie = (name) =>{
@@ -321,7 +322,7 @@ class Emails {
         await fetch('/emails/mark/seen' + uid)
     }
     handleLink = (e) =>{
-        this.smtp_input.value = e.target.value
+        this.smtp_input.value = e.target.textContent
     }
     handleForm = () =>{
         if(!this.form.classList.contains('--open')){
@@ -423,5 +424,4 @@ class Application {
 }
 
 const app = new Application()
-
 app.handleApp()

@@ -88,14 +88,13 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
     });
     const config = this.imapSettings[smtp.provider];
     const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
-
     const imapConfig = {
       imap: {
           user:smtp.email,
           password:pass,
           host:config.host,
           port: config.port,
-          tls: true,
+          tls: config.secure,
           tlsOptions: { rejectUnauthorized:false },
         }
       };
