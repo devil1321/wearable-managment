@@ -6,7 +6,7 @@ export class UsersController {
     constructor(private usersService:UsersService){}
     @Get('user/:email')
     async getUser(@Res() res){
-        const user = await this.usersService.getUser('s.dominik1321@gmail.com')
+        const user = await this.usersService.getUserByEmail('s.dominik1321@gmail.com')
         console.log(user)
         return res.json(user)
     }

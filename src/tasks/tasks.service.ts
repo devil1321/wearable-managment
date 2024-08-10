@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class TasksService extends PrismaClient {
-    constructor(){
-        super()
-    }
+export class TasksService  {
+    constructor(private prismaService:PrismaService){}
     async getTasks(user_id:number){
-        const tasks = await this.task.findMany({
+        const tasks = await this.prismaService.task.findMany({
             where:{
                 user_id:user_id
             }
@@ -16,14 +14,14 @@ export class TasksService extends PrismaClient {
         return data.sort((a, b) => Number(a.completed) - Number(b.completed));
     }
     async getTask(id:number){
-        return await this.task.findFirst({
+        return await this.prismaService.task.findFirst({
             where:{
                 id:id
             }
         })
     }
     async createTask(task){
-        await this.task.create({
+        await this.prismaService.task.create({
             data:{
                 ...task
             }
@@ -31,7 +29,7 @@ export class TasksService extends PrismaClient {
         return this.getTasks(task.user_id)
     }
     async updateTask(id,updatedTask){
-        await this.task.update({
+        await this.prismaService.task.update({
             where:{
                 id:id
             },
@@ -42,7 +40,7 @@ export class TasksService extends PrismaClient {
         return this.getTasks(updatedTask.user_id)
     }
     async markCompleted(id){
-        const task = await this.task.findFirst({
+        const task = await this.prismaService.task.findFirst({
             where:{
                 id:id
             },
@@ -56,7 +54,7 @@ export class TasksService extends PrismaClient {
         return tasks
     }
     async delete(id,user_id){
-        await this.task.delete({
+        await this.prismaService.task.delete({
             where:{
                 id:id
             }

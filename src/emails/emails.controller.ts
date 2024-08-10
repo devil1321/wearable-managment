@@ -9,10 +9,10 @@ export class EmailsController {
     @Get('')
     @Render('emails')
     async getEmails(@Req() req){
-        const emails = await this.emailsService.fetchEmails(3)
+        const emails = await this.emailsService.fetchEmails(1)
         const smtps = await this.smtpService.getSMTPS(1)
         const active_id = req.cookies['active-smtp'] ? Number(req.cookies['active-smtp']) : 1
-        const active_smtp = await this.smtpService.getSMTP(active_id)
+        const active_smtp = await this.smtpService.getSMTP(Number(active_id))
         return {
             emails:emails,
             smtps:smtps,

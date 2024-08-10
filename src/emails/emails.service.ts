@@ -1,18 +1,17 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
 import * as cryptography from '../lib/crypto';
 import { simpleParser } from 'mailparser';
 import * as imaps from 'imap-simple'
 import * as nodemailer from 'nodemailer';
 import * as _ from 'lodash'
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class EmailsService extends PrismaClient implements OnModuleDestroy, OnModuleInit {
+export class EmailsService   {
   public imapSettings;
   public smtpSettings;
 
-  constructor() {
-    super();
+  constructor(private prismaService:PrismaService) {
     this.smtpSettings = {
       gmail: { host: 'smtp.gmail.com', port: 587, secure: false },
       outlook: { host: 'smtp-mail.outlook.com', port: 587, secure: false },
@@ -73,23 +72,19 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
     };
   }
 
-  async onModuleInit() {
-    await this.$connect();
-  }
 
-  async onModuleDestroy() {
-    await this.$disconnect();
-  }
 
   fetchEmails = async(id:number) =>{
 
-    const smtp = await this.sMTP.findFirst({
+    const smtp = await this.prismaService.sMTP.findFirst({
       where: { id: id },
     });
-    const config = this.imapSettings[smtp.provider];
-    const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
-    const imapConfig = {
-      imap: {
+    if(smtp){
+
+      const config = this.imapSettings[smtp.provider];
+      const pass = cryptography.default.decrypt(smtp.password, smtp.vi);
+      const imapConfig = {
+        imap: {
           user:smtp.email,
           password:pass,
           host:config.host,
@@ -129,12 +124,13 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
               .then((emails:any) => emails)
               .catch((err:any) => console.log(err))
   
-     return emails
-    
+              return emails
+              
+            }
   }
   getUnseen = async(id) =>{
 
-    const smtp = await this.sMTP.findFirst({
+    const smtp = await this.prismaService.sMTP.findFirst({
       where: { id: id },
     });
     const config = this.imapSettings[smtp.provider];
@@ -188,7 +184,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
   }
   markEmailRead = async(id,uid) =>{
 
-    const smtp = await this.sMTP.findFirst({
+    const smtp = await this.prismaService.sMTP.findFirst({
       where: { id: id },
     });
     const config = this.imapSettings[smtp.provider];
@@ -229,7 +225,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
         .catch((err:any) => console.log(err))
   }
   removeEmail = async(id,uid)=>{
-    const smtp = await this.sMTP.findFirst({
+    const smtp = await this.prismaService.sMTP.findFirst({
       where: { id: id },
     });
     const config = this.imapSettings[smtp.provider];
@@ -272,7 +268,7 @@ export class EmailsService extends PrismaClient implements OnModuleDestroy, OnMo
   }
   async sendMail(options) {
     const { user_id, provider, to, subject, html } = options;
-    const smtps = await this.sMTP.findMany({
+    const smtps = await this.prismaService.sMTP.findMany({
       where: {
         user_id: user_id,
       },

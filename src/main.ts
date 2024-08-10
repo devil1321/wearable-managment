@@ -6,8 +6,6 @@ import * as session from 'express-session'
 import * as passport from 'passport'
 import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
-
-
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useStaticAssets(join(__dirname, '..', 'public'));
@@ -30,6 +28,8 @@ async function bootstrap() {
 
   app.use(passport.initialize())
   app.use(passport.session())
+
+  app.enableShutdownHooks(); 
 
   await app.listen(3000);
 }

@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt'
 
 
 @Injectable()
-export class AuthService {
+export class AuthService{
     constructor(private usersService:UsersService){}
     async registerLocal(profile){
-        const user = await this.usersService.getUser(profile.email)
+        const user = await this.usersService.getUserByEmail(profile.email)
         if(user){
             return {
                 msg:'User With This Email Is Registered'
@@ -31,7 +31,7 @@ export class AuthService {
         }
     }
     async validateLocal(email:string,password:string){
-        const user = await this.usersService.getUser(email)
+        const user = await this.usersService.getUserByEmail(email)
         let isValid = false
         if(user){
             bcrypt.compare(password, user.password, function(err, result) {
@@ -49,7 +49,7 @@ export class AuthService {
         }
     }
     async validateGoogle(profile){
-        const user = await this.usersService.getUser(profile.emails[0].value)
+        const user = await this.usersService.getUserByEmail(profile.emails[0].value)
         if(user){
             return user
         }else{
