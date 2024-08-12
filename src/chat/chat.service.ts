@@ -5,7 +5,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ChatService {
     constructor(private prismaService:PrismaService){}
     async getMessages(){
-        const messages = await this.prismaService.message.findMany({})
+        let messages = await this.prismaService.message.findMany({})
+        messages = messages.filter(m => m.room_id === null)
         return messages
     }
     async getRoomMessages(room_id){
@@ -26,7 +27,9 @@ export class ChatService {
         return messages
     }
     async sendMessage(message){
-        const sended_message = await this.prismaService.message.create(message)
+        const sended_message = await this.prismaService.message.create({
+            data:message
+        })
         return sended_message
     }
     async clearPrivateMessages(sender_id,receiver_id){

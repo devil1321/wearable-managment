@@ -8,31 +8,33 @@ export class ChatController {
     constructor(private chatService:ChatService,private usersService:UsersService){}
     @Get('')
     @Render('chat')
-    async getChat(@Param('sender_id') sender_id,@Req() req){
+    async getChat(@Req() req){
         const active_room = req.cookies['active-room']
         const active_reciver = req.cookies['active-reciver']
         const users = await this.usersService.getUsers()
         let contacts = await this.chatService.getContacts(Number(1))
-        contacts = contacts.map(async(m) =>{
-            const user = await this.usersService.getUserById(Number(m.id))
-            return {
-                id:user.id,
-                email:user.email
-            }
-        })
-        const rooms = this.chatService.getRooms(Number(sender_id))
-        let messages = []
+        // contacts = contacts.map(async(m) =>{
+        //     // to fix
+        //     // const user = await this.usersService.getUserByEmail(m.email)
+        //     return {
+        //         id:user.id,
+        //         email:user.email
+        //     }
+        // })
+        const rooms = this.chatService.getRooms(Number(1))
+        let messages = await this.chatService.getMessages()
         if(active_room){
+            console.log(active_room)
             messages = await this.chatService.getRoomMessages(Number(active_room))
         }
-        if(sender_id && active_reciver){
-            messages = await this.chatService.getPrivateMessages(Number(sender_id),Number(active_reciver))
+        if(active_reciver){
+            messages = await this.chatService.getPrivateMessages(Number(1),Number(active_reciver))
         }
     
         return {
             user:users[0],
             users,
-            contacts,
+            contacts:[],
             messages,
             rooms,
         }
@@ -62,7 +64,7 @@ export class ChatController {
         await this.chatService.sendMessage(body)
         res.redirect('/chat')
     }
-    @Post('clear-private-messages')
+    @Post('/clear-private-messages')
     async clearPrivateMessages(@Body() body,@Res() res){
         const { sender_id , receiver_id } = body
         await this.chatService.clearPrivateMessages(sender_id,receiver_id)

@@ -366,16 +366,81 @@ class Emails {
         this.activate()
     }
     activate = () =>{
-        this.form.addEventListener('submit',(e)=>{
-            setTimeout(()=>{
-                this.form.reset()
-            },1000)
-        })
-        this.current_fetch.addEventListener('click',this.handleFetchMenuOpen)
-        this.fetch_items.forEach(i => i.addEventListener('click',(e) => this.handleFetchMenuFetchAndClose(e)))
-        this.isSendingBtn.addEventListener('click',this.handleForm)
-        this.smtp_links.forEach(l => l.addEventListener('click',(e) => this.handleLink(e)))
-        this.items.forEach(i => i.addEventListener('click',async(e)=> await this.handleActive(e)))
+        if(this.form){
+            this.form.addEventListener('submit',(e)=>{
+                setTimeout(()=>{
+                    this.form.reset()
+                },1000)
+            })
+            this.current_fetch.addEventListener('click',this.handleFetchMenuOpen)
+            this.fetch_items.forEach(i => i.addEventListener('click',(e) => this.handleFetchMenuFetchAndClose(e)))
+            this.isSendingBtn.addEventListener('click',this.handleForm)
+            this.smtp_links.forEach(l => l.addEventListener('click',(e) => this.handleLink(e)))
+            this.items.forEach(i => i.addEventListener('click',async(e)=> await this.handleActive(e)))
+        }
+        }
+}
+
+
+class Chat{
+    constructor(){
+        this.message_form = document.querySelector('.chat-message-form')
+        this.message = document.querySelector('.chat-message-input')
+        this.sender = document.querySelector('.chat-sender-input')
+        this.recivers = document.querySelectorAll('.chat-user')
+        this.current_reciver = null
+        this.current_room = null
+        this.rooms = document.querySelectorAll('.chat-rooms-menu div')
+    }
+    handleReciverActivate(reciver){
+        this.current_reciver = reciver.id
+        const id = Number(Cookie.getCookie('active-reciver'))
+        if(id === Number(reciver.id)){
+            reciver.classList.remove('bg-green-300')
+            reciver.classList.remove('bg-orange-300')
+            reciver.classList.add("bg-green-600")
+        }
+    }
+    handleReciver(e){
+        this.current_reciver = e.target.id
+        Cookie.setCookie('active-reciver',e.target.id,1)
+        this.recivers.forEach(r => r.classList.remove("bg-orange-300"))
+        e.target.classList.add("bg-green-600")
+    }
+    handleRoom(e){
+        this.current_room = e.target.id
+        if(e.target.id === 'undefined'){
+            this.current_room = null
+        }
+    }
+    sendMessage = async(e) =>{
+        e.preventDefault()
+        const message = {
+            room_id:this.current_room === null ? null : Number(this.current_room),
+            message:this.message.value,
+            sender_id:Number(this.sender.value),
+            receiver_id:this.current_reciver === null ? null : Number(this.current_reciver)
+        }
+        try{
+            await fetch('/chat/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Ensure the body is treated as JSON
+                },
+                body: JSON.stringify(message)
+            });
+            this.message_form.reset()
+            console.log(message)
+            window.location.href = '/chat'
+        }catch(err){
+            console.log(err)
+        }
+    }
+    activate = () =>{
+        this.message_form.addEventListener('submit',async(e) => await this.sendMessage(e))
+        this.recivers.forEach(r => r.addEventListener('click',(e) => this.handleReciver(e)))
+        this.rooms.forEach(r => r.addEventListener('click',(e) => this.handleRoom(e)))
+        this.recivers.forEach(r => this.handleReciverActivate(r))
     }
 }
 
@@ -392,6 +457,10 @@ class Application {
                                 document.querySelector('.nav-chat-icon-wrapper'),
                                 document.querySelector('.nav-chat-menu')
                             )
+        this.chat_ui = new Nav_Menu(
+                                document.querySelector('.chat-rooms-activator'),
+                                document.querySelector('.chat-rooms-menu')
+        )
         this.profile_ui = new Nav_Menu(
             document.querySelector('.nav-profile-icon-wrapper'),
             document.querySelector('.nav-profile-menu')
@@ -407,6 +476,7 @@ class Application {
         this.smtp_search = new SMTPSearch()
         this.smtp_form = new SMTPSForm()     
         this.emails_ui = new Emails()           
+        this.chat = new Chat()
     }
     handleApp(){
         this.sidebar_ui.activate()
@@ -420,6 +490,7 @@ class Application {
         this.smtp_provider_ui.activate()  
         this.smtp_form.activate()
         this.emails_ui.activate()
+        this.chat.activate()
     }
 }
 

@@ -12,8 +12,6 @@ export class AuthController {
         return null
     }
 
-    @Get('test')
-    @Render('register')
     @Post('register')
     registerLocal(@Body() profile:any){
         return this.authService.registerLocal(profile)

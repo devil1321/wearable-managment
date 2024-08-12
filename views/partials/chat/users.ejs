@@ -1,12 +1,12 @@
-<div class="chat-users w-[45%] mt-6 py-2 px-4 bg-neutral-800 rounded-md">
+<div class="chat-users w-[45%] mt-12 py-2 px-4 bg-neutral-800 rounded-md">
     <% if(contacts.length > 0) { %>
         <h3 class="font-bold text-center italic bg-green-600 p-2 rounded-md">Contacts</h3>
     <% } %>
     <% contacts.forEach(u =>{ %>
         <% if(u.id === user.id) { %>
-            <div class="chat-user cursor-pointer p-2 my-2 bg-green-300 rounded-md font-bold italic"><%= u.email %></div>
+            <div id="<%- u.id %>" class="chat-user cursor-pointer p-2 my-2 bg-green-300 rounded-md font-bold italic"><%= u.email %></div>
         <% } else { %>
-            <div class="chat-user cursor-pointer p-2 my-2 bg-orange-300 hover:bg-orange-600 rounded-md font-bold italic"><%= u.email %></div>
+            <div id="<%- u.id %>" class="chat-user cursor-pointer p-2 my-2 bg-orange-300 hover:bg-orange-600 rounded-md font-bold italic"><%= u.email %></div>
         <% }  %>
     <% }) %>
     <% if(users.length > 0) { %>
@@ -14,9 +14,9 @@
     <% } %>
     <% users.forEach(u =>{ %>
         <% if(u.id === user.id) { %>
-            <div class="chat-user cursor-pointer p-2 my-2 bg-green-300 rounded-md font-bold italic"><%= u.email %></div>
+            <div id="<%- u.id %>" class="chat-user cursor-pointer p-2 my-2 bg-green-300 rounded-md font-bold italic"><%= u.email %></div>
         <% } else { %>
-            <div class="chat-user cursor-pointer p-2 my-2 bg-orange-300 hover:bg-orange-600 rounded-md font-bold italic"><%= u.email %></div>
+            <div id="<%- u.id %>" class="chat-user cursor-pointer p-2 my-2 bg-orange-300 hover:bg-orange-600 rounded-md font-bold italic"><%= u.email %></div>
         <% }  %>
     <% }) %>
 </div>
