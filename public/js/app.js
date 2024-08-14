@@ -437,10 +437,65 @@ class Chat{
         }
     }
     activate = () =>{
-        this.message_form.addEventListener('submit',async(e) => await this.sendMessage(e))
-        this.recivers.forEach(r => r.addEventListener('click',(e) => this.handleReciver(e)))
-        this.rooms.forEach(r => r.addEventListener('click',(e) => this.handleRoom(e)))
-        this.recivers.forEach(r => this.handleReciverActivate(r))
+        if(this.message_form){
+            this.message_form.addEventListener('submit',async(e) => await this.sendMessage(e))
+            this.recivers.forEach(r => r.addEventListener('click',(e) => this.handleReciver(e)))
+            this.rooms.forEach(r => r.addEventListener('click',(e) => this.handleRoom(e)))
+            this.recivers.forEach(r => this.handleReciverActivate(r))
+        }
+    }
+}
+
+class Chart {
+    constructor(){
+        this.chart = document.querySelector('.analytics-chart')
+        this.tasks = []
+    }
+    getTasks = async () =>{
+        const res = await fetch('/tasks/json')
+        const data = await res.json()
+        return data
+    }
+    renderChart = (data) =>{
+        var options = {
+            series: [{
+            name: 'All',
+            data: [data.length]
+          }, {
+            name: 'Completed',
+            data: [data.filter(t => t.completed === true).map(t => t.completed).length]
+          },{
+            name: 'Active',
+            data: [data.filter(t => t.completed === false).map(t => t.completed).length]
+          },
+        ],
+            chart: {
+            height: 350,
+            type: 'area'
+          },
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth'
+          },
+          xaxis: {
+            type: 'datetime',
+            categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+          },
+          tooltip: {
+            x: {
+              format: 'dd/MM/yy HH:mm'
+            },
+          },
+          };
+        
+          var chart = new ApexCharts(this.chart, options);
+          chart.render();
+    }
+    activate = async () =>{
+        const data = await this.getTasks()
+        await this.renderChart(data)
     }
 }
 
@@ -477,6 +532,7 @@ class Application {
         this.smtp_form = new SMTPSForm()     
         this.emails_ui = new Emails()           
         this.chat = new Chat()
+        this.chart = new Chart()
     }
     handleApp(){
         this.sidebar_ui.activate()
@@ -491,6 +547,7 @@ class Application {
         this.smtp_form.activate()
         this.emails_ui.activate()
         this.chat.activate()
+        this.chart.activate()
     }
 }
 

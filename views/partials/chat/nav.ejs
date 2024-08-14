@@ -1,5 +1,5 @@
 <div class="chat-nav mt-6 flex justify-start items-center w-[40%]">
-    <div class="chat-joined-rooms mr-6 min-w-[100px] relative top-0 left-0">
+    <div class="chat-joined-rooms mr-6 min-w-max relative top-0 left-0">
         <div class="chat-current-room-wrapper p-2 bg-neutral-800 rounded-md">
             <div class="chat-current-room p-2 bg-orange-300 rounded-md">Room</div>
         </div>
@@ -7,10 +7,14 @@
             <div class="p-2 bg-green-300 rounded-md">Room</div>
         </div>
     </div>
-    <form action="" class="chat-rooms w-[100%] relative top-0 left-0">
+    <form action="" class="chat-rooms min-w-max relative top-0 left-0">
         <input placeholder="Rooms" type="text" class="chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
         <div class="chat-rooms-menu translate-y-6 opacity-0 hidden absolute top-16 left-0 w-[100%] bg-neutral-800 p-2 rounded-md">
             <div class="p-2 bg-green-300 rounded-md" id="1">Room</div>
         </div>
+    </form>
+    <form action="" class="chat-rooms min-w-max h-[55px] ml-6 flex  relative top-0 left-0">
+        <input placeholder="Add Room" type="text" class="chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
+        <button class="p-2 w-100 bg-green-300 font-bold w-[100px] rounded-r-md min-w-max">Add</button>
     </form>
 </div>
