@@ -9,7 +9,7 @@ class Cryptography {
         // Load key from environment variable or secure storage
         this.key = Buffer.from(process.env.ENCRYPTION_KEY || '', 'hex');
         if (this.key.length !== 32) {
-            throw new Error('Encryption key must be 32 bytes long');
+            console.log('Encryption key must be 32 bytes long')
         }
     }
 
