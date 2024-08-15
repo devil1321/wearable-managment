@@ -367,7 +367,7 @@ class Emails {
     }
     activate = () =>{
         if(this.form){
-            this.form.addEventListener('submit',(e)=>{
+            this.form.addEventListener('submit',()=>{
                 setTimeout(()=>{
                     this.form.reset()
                 },1000)
@@ -457,16 +457,41 @@ class Chart {
         return data
     }
     renderChart = (data) =>{
+        const groupedTasks = data.reduce((acc, task) => {
+            const taskDate = task.date;
+        
+            // Check if the date already exists in the accumulator
+            const existingGroup = acc.find(group => group.date === taskDate);
+        
+            if (existingGroup) {
+                // If date exists, push the task into the tasks array of that group
+                existingGroup.tasks.push(task);
+            } else {
+                // If date doesn't exist, create a new group with the date and task
+                acc.push({ date: taskDate, tasks: [task] });
+            }
+        
+            return acc;
+        }, []);
+
         var options = {
             series: [{
             name: 'All',
-            data: [data.length]
+            data: groupedTasks.map(t => t.tasks.length)
           }, {
             name: 'Completed',
-            data: [data.filter(t => t.completed === true).map(t => t.completed).length]
+            data: groupedTasks.map(t => { 
+                let tasks = t.tasks
+                tasks =tasks.filter(t => t.completed === true)
+                return tasks
+            }).map(t => t.length)
           },{
             name: 'Active',
-            data: [data.filter(t => t.completed === false).map(t => t.completed).length]
+            data: groupedTasks.map(t => { 
+                let tasks = t.tasks
+                tasks = tasks.filter(t => t.completed === false)
+                return tasks
+            }).map(t => t.length)
           },
         ],
             chart: {

@@ -37,6 +37,7 @@ export class TasksController {
     async createTask(@Req() req,@Res() res, @Body() body){
         await this.tasksService.createTask({
             ...body,
+            date:new Date(),
             user_id:1
         })
         return res.redirect('/tasks')

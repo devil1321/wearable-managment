@@ -13,8 +13,15 @@
                 <%- include('partials/global/sidebar') %>
                 <div class="main-wrapper min-w-[97%] transition-all">
                     <%- include('partials/global/nav/nav-main') %>
-                    <div class="analytics-main h-[95vh] mt-12 px-12 flex justify-between items-start">
-                        <div class="analytics-widgets w-1/2"></div>
+                    <div class="analytics-main h-[80vh] mt-12 px-12 flex justify-between items-start">
+                        <div class="analytics-widgets w-1/2">
+                            <div class="analytics-count flex justify-between items-center">
+                                <%- include('partials/analytics/count',{ icon:"fa-solid fa-globe fa-5x",count:tasks,name:'All' }) %>
+                                <%- include('partials/analytics/count',{ icon:"fa-solid fa-spinner fa-5x",count:active,name:"Pending" }) %>
+                                <%- include('partials/analytics/count',{ icon:"fa-solid fa-clipboard-list fa-5x",count:completed,name:"Completed" }) %>
+                            </div>
+                            <%- include('partials/analytics/widget') %>
+                        </div>
                         <div class="analytics-chart w-1/2"></div>
                     </div>
                     <%- include('partials/global/footer') %>
