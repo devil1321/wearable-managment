@@ -39,17 +39,32 @@ export class ChatController {
             rooms,
         }
     }
-    @Get('/private')
+
+    @Get('/recived/json/:sender_id')
+    async getRecivedJSON(@Res() res,@Param('sender_id') sender_id){
+        const messages = await this.chatService.getRecivedMessagesToUser(Number(sender_id))
+        return res.json([...messages])
+    }
+
+    @Get('/set-reciver/:id')
+    setReciver(@Param('id') id,@Res() res){
+        res.cookie('active-reciver',id,{ httpOnly:true })
+        return res.json({url:`/chat/private/${1}/${id}`})
+    }
+
+    @Get('/private/:sender_id/:reciver_id')
     @Render('chat')
     async getPrivateMessages(@Param('sender_id') sender_id,@Param('receiver_id') receiver_id){
         const users = await this.usersService.getUsers()
         const messages = await this.chatService.getPrivateMessages(Number(sender_id),Number(receiver_id))
         let contacts = await this.chatService.getContacts(Number(sender_id))
         contacts = contacts.map(async(m) =>{
-            const user = await this.usersService.getUserById(Number(m.id))
-            return {
-                id:user.id,
-                email:user.email
+            const user = await this.usersService.getUserById(m?.reciver_id ? Number(m.reciver_id) : 0)
+            if(user){
+                return {
+                    id:user.id,
+                    email:user.email
+                }
             }
         })
         return {

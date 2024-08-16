@@ -26,6 +26,14 @@ export class ChatService {
         })
         return messages
     }
+    async getRecivedMessagesToUser(sender_id){
+        const messages = await this.prismaService.message.findMany({
+            where:{
+                sender_id
+            }
+        })
+        return messages
+    }
     async sendMessage(message){
         const sended_message = await this.prismaService.message.create({
             data:message

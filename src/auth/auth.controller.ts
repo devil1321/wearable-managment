@@ -13,7 +13,7 @@ export class AuthController {
     }
 
     @Post('register')
-    registerLocal(@Body() profile:any){
+    registerLocal(@Body() profile){
         return this.authService.registerLocal(profile)
     }
     
@@ -26,7 +26,8 @@ export class AuthController {
     @Post('login')
     @UseGuards(StrategyAuthGuard)
     async login(@Req() req, @Res() res){
-        return res.redirect('test')
+        res.cookie('user_id',req.user.id,{ httpOnly:true })
+        return res.redirect('/analytics')
     }   
 
     @Get('test')

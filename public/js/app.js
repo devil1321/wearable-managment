@@ -301,7 +301,7 @@ class Emails {
         // Step 1: Close any unclosed <a> tags
         function closeATags(html) {
             if(html){
-                return html.replace(/<a\b([^>]*?)(?<!\/)>/gi, function(match, attributes) {
+                return html.replace(/<a\b([^>]*?)(?<!\/)>/gi, function(match) {
                     // Find the closing </a> tag after the opening <a>
                     const closingTagIndex = html.indexOf('</a>', html.indexOf(match));
                     if (closingTagIndex === -1) {
@@ -400,7 +400,6 @@ class Emails {
         }
 }
 
-
 class Chat{
     constructor(){
         this.message_form = document.querySelector('.chat-message-form')
@@ -411,20 +410,28 @@ class Chat{
         this.current_room = null
         this.rooms = document.querySelectorAll('.chat-rooms-menu div')
     }
-    handleReciverActivate(reciver){
+    handleReciverActivate = async (reciver) =>{
         this.current_reciver = reciver.id
-        const id = Number(Cookie.getCookie('active-reciver'))
-        if(id === Number(reciver.id)){
+        // if(id === Number(reciver.id)){
             reciver.classList.remove('bg-green-300')
             reciver.classList.remove('bg-orange-300')
             reciver.classList.add("bg-green-600")
-        }
+        // }
+       
     }
-    handleReciver(e){
+    handleReciver = async(e) =>{
         this.current_reciver = e.target.id
-        Cookie.setCookie('active-reciver',e.target.id,1)
+        const res = await fetch('/chat/set-reciver/' + this.current_reciver.id)
+        const data = await res.json()
+        const url = await data
         this.recivers.forEach(r => r.classList.remove("bg-orange-300"))
         e.target.classList.add("bg-green-600")
+        Cookie.setCookie('current-reciver_id',this.current_reciver,7)
+        setTimeout(() => {
+            if(url.url){
+                window.location.href = url.url
+            }
+        }, 100);
     }
     handleRoom(e){
         this.current_room = e.target.id
@@ -434,6 +441,7 @@ class Chat{
     }
     sendMessage = async(e) =>{
         e.preventDefault()
+        this.current_reciver = Cookie.getCookie('current-reciver_id')
         const message = {
             room_id:this.current_room === null ? null : Number(this.current_room),
             message:this.message.value,
@@ -458,9 +466,9 @@ class Chat{
     activate = () =>{
         if(this.message_form){
             this.message_form.addEventListener('submit',async(e) => await this.sendMessage(e))
-            this.recivers.forEach(r => r.addEventListener('click',(e) => this.handleReciver(e)))
+            this.recivers.forEach(r => r.addEventListener('click',async(e) => await this.handleReciver(e)))
             this.rooms.forEach(r => r.addEventListener('click',(e) => this.handleRoom(e)))
-            this.recivers.forEach(r => this.handleReciverActivate(r))
+            this.recivers.forEach(async r => await this.handleReciverActivate(r))
         }
     }
 }
@@ -545,6 +553,53 @@ class Chart {
     }
 }
 
+class ChatMenu {
+    constructor(){
+        this.activator = document.querySelector('.nav-chat-icon-wrapper')
+        this.menu_output = document.querySelector('.nav-chat-menu')
+    }
+    getUsers = async() =>{
+        const res = await fetch('/users/json')
+        const data = await res.json()
+        return data
+    }
+    getMessages = async(sender_id) =>{
+        const res = await fetch(`/chat/recived/json/${sender_id}`)
+        const data = res.json()
+        return data
+    }
+    getUser = async(id) =>{
+        const res = await fetch(`/users/user/by-id/${id}`)
+        const data = await res.json()
+        return data
+    }
+    getLoggedUser = async() =>{
+        const res = await fetch('/users/logged-user/json')
+        const data = await res.json()
+        return data
+    }
+    handleOutput = async() =>{
+        const users = await this.getUsers()
+        const sender = await this.getLoggedUser()
+        users.filter(u => u.email !== sender.email).length > 0 
+        ? users.filter(u => u.email !== sender.email).forEach(async (u) =>{
+            const reciver = await this.getUser(u.id)
+            console.log(reciver)
+            const anchor = document.createElement('a')
+            anchor.classList = 'my-2 p-2 bg-neutral-900 hover:bg-green-300 font-bold rounded-md'
+            anchor.textContent = reciver.email
+            anchor.href = `/chat/private/${sender.id}/${reciver.id}`
+            this.menu_output.appendChild(anchor)
+        })
+        :  this.menu_output.innerHTML = `<div class="my-2 p-2 bg-neutral-900 hover:bg-green-300 font-bold rounded-md">Messages Are Empty</div>`
+    }
+    activate = () =>{
+        if(this.menu_output){
+            this.activator.addEventListener('click',this.handleOutput)
+        }
+    }
+}
+
 class Application {
     constructor(){
         this.sidebar_ui = new Sidebar()
@@ -558,7 +613,7 @@ class Application {
                                 document.querySelector('.nav-chat-icon-wrapper'),
                                 document.querySelector('.nav-chat-menu')
                             )
-        this.chat_ui = new Nav_Menu(
+        this.romms_ui = new Nav_Menu(
                                 document.querySelector('.chat-rooms-activator'),
                                 document.querySelector('.chat-rooms-menu')
         )
@@ -579,6 +634,7 @@ class Application {
         this.emails_ui = new Emails()           
         this.chat = new Chat()
         this.chart = new Chart()
+        this.chat_menu = new ChatMenu()
     }
     handleApp(){
         this.sidebar_ui.activate()
@@ -586,6 +642,7 @@ class Application {
         this.search_ui.activate()
         this.notifications_ui.activate()
         this.chat_ui.activate()
+        this.romms_ui.activate()
         this.profile_ui.activate()
         this.provider_ui.activate()
         this.smtp_search.activate()
@@ -594,6 +651,7 @@ class Application {
         this.emails_ui.activate()
         this.chat.activate()
         this.chart.activate()
+        this.chat_menu.activate()
     }
 }
 
