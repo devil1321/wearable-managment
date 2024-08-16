@@ -8,7 +8,7 @@ export class SmtpController {
     @Render('smtps')
     async getSMTPS(@Req() req){
         const active_id = req.cookies['active-smtp'] ? Number(req.cookies['active-smtp']) : 1
-        const active_smtp = await this.smtpService.getSMTP(active_id)
+        const active_smtp = await this.smtpService.getSMTP(Number(active_id))
         const smtps = await this.smtpService.getSMTPS(1)
         return { smtps:smtps, providers:Object.keys(this.smtpService.smtpSettings), active_smtp:active_smtp }
     }

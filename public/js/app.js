@@ -272,8 +272,7 @@ class Emails {
     constructor(){
         this.emails_main_items = document.querySelector('.emails-main-items')
         this.itemHTML = function(item){
-            const bodyRegex = /<body[^>]*>([\s\S]*?)<\/body>/i
-            const mail = item.mail.match(bodyRegex)
+            const sanitizedHTML = DOMPurify.sanitize(item.mail);
             return `<div id="${item.uid}" class="emails-inbox-item hover:bg-neutral-800 p-2 rounded-md flex flex-wrap gap-3 my-2 justify-start items-stretch max-h-max">
                         <div class="w-1/12 flex justify-center items-center bg-orange-300 font-bold text-white rounded-md p-2">${item.uid}</div>
                         <div class="w-[40%] flex justify-center items-center bg-blue-300 font-bold text-white rounded-md p-2">${item.from.html}</div>
@@ -283,7 +282,7 @@ class Emails {
                             </a>
                         <div id="emails-item-details-output-${item.uid}" class="emails-item-details-output  mx-auto max-w-[90%] overflow-x-scroll hidden bg-white rounded-md p-2 w-[90%]">
                             <div class="emails-item-details-output-header bg-neutral-800 p-2 rounded-md>From: ${item.from.html} Subject:${item.subject}</div>  
-                            <div>${mail[1]}</div>
+                            <div>${this.closeUnclosedTags(sanitizedHTML)}</div>
                         </div>
                     </div>`
         }
@@ -297,6 +296,26 @@ class Emails {
         this.current_fetch = document.querySelector('.emails-current-fetch')
         this.fetch_menu = document.querySelector('.emails-fetch-menu')
         this.fetch_items = document.querySelectorAll('.emails-fetch-menu-item');
+    }
+    closeUnclosedTags = (htmlContent) => {
+        // Step 1: Close any unclosed <a> tags
+        function closeATags(html) {
+            if(html){
+                return html.replace(/<a\b([^>]*?)(?<!\/)>/gi, function(match, attributes) {
+                    // Find the closing </a> tag after the opening <a>
+                    const closingTagIndex = html.indexOf('</a>', html.indexOf(match));
+                    if (closingTagIndex === -1) {
+                        // No closing </a> tag found, so close it manually
+                        return match + '</a>';
+                    }
+                    return match;
+                });
+            }
+        }
+        // Step 2: Apply the closing function to the content
+        const sanitizedHTML = closeATags(htmlContent);
+    
+        return sanitizedHTML;
     }
     handleFetchEmails = async () =>{
         const res = await fetch('/emails/json')
@@ -519,8 +538,10 @@ class Chart {
           chart.render();
     }
     activate = async () =>{
-        const data = await this.getTasks()
-        await this.renderChart(data)
+        if(this.chart){
+            const data = await this.getTasks()
+            await this.renderChart(data)
+        }
     }
 }
 

@@ -147,9 +147,8 @@ export class EmailsService   {
         }
       };
 
-    const emails = await imaps.connect(imapConfig)
-            .then((connection) => {
-                return connection.openBox('INBOX')
+    const connection = await imaps.connect(imapConfig)
+    const emails = await connection.openBox('INBOX')
                     .then(() => {
                             // Fetch emails from the last 24h
                         const delay = 24 * 3600 * 1000;
@@ -179,8 +178,7 @@ export class EmailsService   {
                         return emails
                     })
                 }) 
-            })
-            return emails
+                return emails
   }
   markEmailRead = async(id,uid) =>{
 
