@@ -20,8 +20,8 @@ export class ChatService {
     async getPrivateMessages(sender_id,receiver_id){
         const messages = await this.prismaService.message.findMany({
             where:{
-                sender_id,
-                receiver_id
+                sender_id:sender_id,
+                receiver_id:receiver_id
             }
         })
         return messages

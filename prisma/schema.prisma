@@ -29,12 +29,13 @@ model User {
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
-  name        String?  @db.VarChar(255)
-  completed   Boolean? @default(false)
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(255)
+  completed   Boolean?  @default(false)
   description String?
+  date        DateTime? @default(now()) @db.Timestamptz(6)
   user_id     Int
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
 }
 
 model SMTP {
@@ -45,7 +46,7 @@ model SMTP {
   provider  String?  @db.VarChar(255)
   user_id   Int?
   is_active Boolean? @default(false)
-  user      User?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user      User?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_smtp_user")
 }
 
 model Room {
@@ -53,7 +54,7 @@ model Room {
   name       String?      @db.VarChar(255)
   sender_id  Int?
   messages   Message[]    @relation("RoomMessages")
-  sender     User?        @relation("RoomSenderRelation", fields: [sender_id], references: [id], onUpdate: NoAction)
+  sender     User?        @relation("RoomSenderRelation", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_room_sender")
   RoomToUser RoomToUser[]
 }
 
@@ -63,9 +64,9 @@ model Message {
   sender_id              Int
   receiver_id            Int?
   room_id                Int?
-  receiver               User?                    @relation("ReceivedMessages", fields: [receiver_id], references: [id], onUpdate: NoAction)
-  room                   Room?                    @relation("RoomMessages", fields: [room_id], references: [id], onUpdate: NoAction)
-  sender                 User                     @relation("SentMessages", fields: [sender_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  receiver               User?                    @relation("ReceivedMessages", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_message_receiver")
+  room                   Room?                    @relation("RoomMessages", fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_message_room")
+  sender                 User                     @relation("SentMessages", fields: [sender_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_message_sender")
   ReceivedMessagesToUser ReceivedMessagesToUser[]
   SentMessagesToUser     SentMessagesToUser[]
 }
@@ -73,8 +74,8 @@ model Message {
 model ReceivedMessagesToUser {
   A       Int
   B       Int
-  Message Message @relation(fields: [A], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  User    User    @relation(fields: [B], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Message Message @relation(fields: [A], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_received_message")
+  User    User    @relation(fields: [B], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_received_user")
 
   @@id([A, B])
 }
@@ -82,8 +83,8 @@ model ReceivedMessagesToUser {
 model RoomToUser {
   A    Int
   B    Int
-  Room Room @relation(fields: [A], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  User User @relation(fields: [B], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Room Room @relation(fields: [A], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_room_to_user_room")
+  User User @relation(fields: [B], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_room_to_user_user")
 
   @@id([A, B])
 }
@@ -91,8 +92,8 @@ model RoomToUser {
 model SentMessagesToUser {
   A       Int
   B       Int
-  Message Message @relation(fields: [A], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  User    User    @relation(fields: [B], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Message Message @relation(fields: [A], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_sent_message")
+  User    User    @relation(fields: [B], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_sent_user")
 
   @@id([A, B])
 }

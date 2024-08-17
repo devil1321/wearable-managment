@@ -1,6 +1,7 @@
 <div id="task-<%- t.id %>" class="tasks-item flex justify-between items-center bg-neutral-700 my-2 rounded-md p-2 w-[100%]">
     <%= t.name %>
     <div class="flex">
+        <a href="#" class="bg-gray-800 mx-2 hover:bg-gray-500 text-white py-1 px-2 rounded-md italic text-black"><%= t.date.toString().slice(0,16) %></a>
         <a href="/tasks/<%= t.id %>" class="bg-gray-800 hover:bg-gray-500 text-white py-1 px-2 rounded-md italic text-black">Description</a>
         <a href="/tasks/completed/<%= t.id %>"class="bg-neutral-900 ml-2 hover:bg-neutral-300 px-2 pt-[2px] font-bold rounded-md italic text-red-600">Status</a>
         <a href='/tasks/delete/<%= t.id %>'class="py-1 px-2 mx-2 hover:text-red-900 hover:bg-neutral-300 bg-neutral-900 rounded-md italic text-red-600">

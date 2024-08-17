@@ -406,7 +406,6 @@ class Chat{
         this.message = document.querySelector('.chat-message-input')
         this.sender = document.querySelector('.chat-sender-input')
         this.recivers = document.querySelectorAll('.chat-user')
-        this.current_reciver = null
         this.current_room = null
         this.rooms = document.querySelectorAll('.chat-rooms-menu div')
     }
@@ -420,13 +419,12 @@ class Chat{
        
     }
     handleReciver = async(e) =>{
-        this.current_reciver = e.target.id
-        const res = await fetch('/chat/set-reciver/' + this.current_reciver.id)
+        const res = await fetch('/chat/set-reciver/' + e.target.id)
         const data = await res.json()
         const url = await data
         this.recivers.forEach(r => r.classList.remove("bg-orange-300"))
         e.target.classList.add("bg-green-600")
-        Cookie.setCookie('current-reciver_id',this.current_reciver,7)
+        Cookie.setCookie('current-reciver_id',e.target.id,7)
         setTimeout(() => {
             if(url.url){
                 window.location.href = url.url
@@ -442,6 +440,7 @@ class Chat{
     sendMessage = async(e) =>{
         e.preventDefault()
         this.current_reciver = Cookie.getCookie('current-reciver_id')
+        console.log(this.current_reciver)
         const message = {
             room_id:this.current_room === null ? null : Number(this.current_room),
             message:this.message.value,
@@ -457,8 +456,11 @@ class Chat{
                 body: JSON.stringify(message)
             });
             this.message_form.reset()
-            console.log(message)
-            window.location.href = '/chat'
+            if(this.current_reciver){
+                window.location.href = `/chat/private/${this.sender.value}/${this.current_reciver}`
+            }else{
+                window.location.href = '/chat'
+            }
         }catch(err){
             console.log(err)
         }
@@ -504,21 +506,21 @@ class Chart {
         var options = {
             series: [{
             name: 'All',
-            data: groupedTasks.map(t => t.tasks.length)
+            data: [groupedTasks.map(t => t.tasks.length).length]
           }, {
             name: 'Completed',
             data: groupedTasks.map(t => { 
                 let tasks = t.tasks
-                tasks =tasks.filter(t => t.completed === true)
-                return tasks
-            }).map(t => t.length)
+                tasks = tasks.filter(t => t.completed === true)
+                return tasks.length
+            })
           },{
             name: 'Active',
             data: groupedTasks.map(t => { 
                 let tasks = t.tasks
                 tasks = tasks.filter(t => t.completed === false)
-                return tasks
-            }).map(t => t.length)
+                return tasks.length
+            })
           },
         ],
             chart: {

@@ -8,33 +8,34 @@ export class ChatController {
     constructor(private chatService:ChatService,private usersService:UsersService){}
     @Get('')
     @Render('chat')
-    async getChat(@Req() req){
+    async getChat(@Req() req, @Res() res){
         const active_room = req.cookies['active-room']
-        const active_reciver = req.cookies['active-reciver']
+        res.cookie('active-reciver',null,{ httpOnly:true })
+        res.cookie('current-reciver_id',null,{ httpOnly:true })
         const users = await this.usersService.getUsers()
         let contacts = await this.chatService.getContacts(Number(1))
-        // contacts = contacts.map(async(m) =>{
-        //     // to fix
-        //     // const user = await this.usersService.getUserByEmail(m.email)
-        //     return {
-        //         id:user.id,
-        //         email:user.email
-        //     }
-        // })
+        contacts = contacts.filter(id => id !== null).filter(id => id !== 1).map(async(id) =>{
+            // to fix
+            const user = await this.usersService.getUserById(Number(id))
+            if(user){
+                return {
+                    id:user.id,
+                    email:user.email
+                }
+            }
+        })
+        const awaited_contacts = await Promise.all(contacts)
         const rooms = this.chatService.getRooms(Number(1))
         let messages = await this.chatService.getMessages()
+        messages = messages.filter(m => m.room_id === null)
         if(active_room){
             console.log(active_room)
             messages = await this.chatService.getRoomMessages(Number(active_room))
         }
-        if(active_reciver){
-            messages = await this.chatService.getPrivateMessages(Number(1),Number(active_reciver))
-        }
-    
         return {
-            user:users[0],
-            users,
-            contacts:[],
+            user:users[0],  
+            users:users.filter(u => u.id !== 1),
+            contacts:awaited_contacts,
             messages,
             rooms,
         }
@@ -49,17 +50,19 @@ export class ChatController {
     @Get('/set-reciver/:id')
     setReciver(@Param('id') id,@Res() res){
         res.cookie('active-reciver',id,{ httpOnly:true })
+        res.cookie('current-reciver_id',id,{ httpOnly:true })
+
         return res.json({url:`/chat/private/${1}/${id}`})
     }
 
     @Get('/private/:sender_id/:reciver_id')
     @Render('chat')
-    async getPrivateMessages(@Param('sender_id') sender_id,@Param('receiver_id') receiver_id){
+    async getPrivateMessages(@Param('sender_id') sender_id,@Param('reciver_id') reciver_id){
         const users = await this.usersService.getUsers()
-        const messages = await this.chatService.getPrivateMessages(Number(sender_id),Number(receiver_id))
+        const messages = await this.chatService.getPrivateMessages(Number(sender_id),Number(reciver_id))
         let contacts = await this.chatService.getContacts(Number(sender_id))
-        contacts = contacts.map(async(m) =>{
-            const user = await this.usersService.getUserById(m?.reciver_id ? Number(m.reciver_id) : 0)
+        contacts = contacts.filter(id => id !== null).filter(id => id !== 1).map(async(id) =>{
+            const user = await this.usersService.getUserById(id)
             if(user){
                 return {
                     id:user.id,
@@ -67,16 +70,18 @@ export class ChatController {
                 }
             }
         })
+        const awaited_contacts = await Promise.all(contacts)
         return {
             user:users[0],
-            users,
-            contacts,
+            users:users.filter(u => u.id !== 1),
+            contacts:awaited_contacts,
             messages,
         }
     }
     @Post('/send')
     async sendMessage(@Body() body,@Res() res){
         await this.chatService.sendMessage(body)
+        console.log(body)
         res.redirect('/chat')
     }
     @Post('/clear-private-messages')
@@ -90,13 +95,14 @@ export class ChatController {
     async getRoomContacts(@Param('room_id') room_id,@Param('sender_id') sender_id){
         const users = await this.usersService.getUsers()
         let contacts = await this.chatService.getRoomContacts(Number(room_id))
-        contacts = contacts.map(async(m) =>{
-            const user = await this.usersService.getUserById(Number(m.id))
+        contacts = contacts.filter(id => id !== null).map(async(id) =>{
+            const user = await this.usersService.getUserById(Number(id))
             return {
                 id:user.id,
                 email:user.email
             }
         })
+        const awaited_contacts = Promise.all(contacts)
         const rooms = this.chatService.getRooms(Number(sender_id))
         let messages = []
         if(room_id){
@@ -104,8 +110,8 @@ export class ChatController {
         }
         return {
             user:users[0],
-            users,
-            contacts,
+            users:users.filter(u => u.id !== 1),
+            contacts:awaited_contacts,
             messages,
             rooms,
         }
@@ -114,15 +120,16 @@ export class ChatController {
     @Render('chat')
     async getContacts(@Param('sender_id') sender_id){
         let contacts = await this.chatService.getContacts(Number(sender_id))
-        contacts = contacts.map(async(m) =>{
-            const user = await this.usersService.getUserById(Number(m.id))
+        contacts = contacts.filter(id => id !== null).filter(id => id !== 1).map(async(id) =>{
+            const user = await this.usersService.getUserById(Number(id))
             return {
                 id:user.id,
                 email:user.email
             }
         })
+        const awaited_contacts = Promise.all(contacts)
         return {
-            contacts
+            contacts:awaited_contacts
         }
     }
     

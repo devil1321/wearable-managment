@@ -26,18 +26,30 @@ export class AnalyticsController {
             return acc;
         }, []);
 
-        const active = groupedTasks.map(t => { 
+        let active = groupedTasks.map(t => { 
             let tasks = t.tasks
             tasks = tasks.filter(t => t.completed === false)
             return tasks
-        }).map(t => t.length).reduce((a,b) => a + b)
+        }).map(t => t.length)
 
-        const completed = groupedTasks.map(t => { 
+        if(active.length > 0){
+            active = active.reduce((a,b) => a + b)
+        }else{
+            active = [0]
+        }
+
+        let completed = groupedTasks.map(t => { 
             let tasks = t.tasks
             tasks = tasks.filter(t => t.completed === true)
             return tasks
-        }).map(t => t.length).reduce((a,b) => a + b)
+        }).map(t => t.length)
        
+        if(completed.length > 0){
+            completed = completed.reduce((a,b) => a + b)
+        }else{
+            completed = [0]
+        }
+
         return { 
             tasks:tasks.length,
             active,
