@@ -9,7 +9,7 @@
     </div>
     <form action="" class="chat-rooms min-w-max relative top-0 left-0">
         <input placeholder="Rooms" type="text" class="chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
-        <div class="chat-rooms-menu translate-y-6 opacity-0 hidden absolute top-16 left-0 w-[100%] bg-neutral-800 p-2 rounded-md">
+        <div class="chat-rooms-menu transition-all translate-y-6 opacity-0 hidden absolute top-16 left-0 w-[100%] bg-neutral-800 p-2 rounded-md">
             <% rooms?.forEach(r =>{ %>
                 <a href="/chat/room/<%- r.id %>/<%- user.id %>" class="p-2 block w-[100%] my-2 bg-green-300 hover:bg-green-600 rounded-md" id="<%- r.id %>"><%= r.name %></a>
             <% }) %>

@@ -408,6 +408,10 @@ class Chat{
         this.recivers = document.querySelectorAll('.chat-user')
         this.current_room = null
         this.rooms = document.querySelectorAll('.chat-rooms-menu a')
+        this.selected_room = document.querySelector('.chat-current-room')
+    }
+    handleSelectedRoom(){
+        this.selected_room.innerHTML = Cookie.getCookie('current-room-ui')
     }
     handleReciverActivate = async (reciver) =>{
         this.current_reciver = reciver.id
@@ -433,6 +437,7 @@ class Chat{
         }, 100);
     }
     handleRoom(e){
+        Cookie.setCookie('current-room-ui',e.target.textContent,7)
         Cookie.setCookie('current-room',e.target.id,7)
         Cookie.setCookie('current-reciver',e.target.id,0)
         this.current_room = e.target.id
@@ -477,8 +482,13 @@ class Chat{
         if(this.message_form){
             this.message_form.addEventListener('submit',async(e) => await this.sendMessage(e))
             this.recivers.forEach(r => r.addEventListener('click',async(e) => await this.handleReciver(e)))
-            this.rooms.forEach(r => r.addEventListener('click',(e) => this.handleRoom(e)))
+            this.rooms.forEach(r => r.addEventListener('click',(e) => {
+                this.handleRoom(e)
+                this.handleSelectedRoom()
+                app.romms_ui.handleMenu()
+            }))
             this.recivers.forEach(async r => await this.handleReciverActivate(r))
+            window.addEventListener('load',this.handleSelectedRoom())
         }
     }
 }
