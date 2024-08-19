@@ -100,4 +100,12 @@ export class ChatService {
         })
         return rooms
     }
+    async createRoom(name,sender_id){
+        return await this.prismaService.room.create({
+            data:{
+                sender_id,
+                name
+            }
+        })
+    }
 }

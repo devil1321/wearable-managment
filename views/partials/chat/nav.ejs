@@ -10,11 +10,14 @@
     <form action="" class="chat-rooms min-w-max relative top-0 left-0">
         <input placeholder="Rooms" type="text" class="chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
         <div class="chat-rooms-menu translate-y-6 opacity-0 hidden absolute top-16 left-0 w-[100%] bg-neutral-800 p-2 rounded-md">
-            <div class="p-2 bg-green-300 rounded-md" id="1">Room</div>
+            <% rooms?.forEach(r =>{ %>
+                <a href="/chat/room/<%- r.id %>/<%- user.id %>" class="p-2 block w-[100%] my-2 bg-green-300 hover:bg-green-600 rounded-md" id="<%- r.id %>"><%= r.name %></a>
+            <% }) %>
         </div>
     </form>
-    <form action="" class="chat-rooms min-w-max h-[55px] ml-6 flex  relative top-0 left-0">
-        <input placeholder="Add Room" type="text" class="chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
+    <form action="/chat/create-room" method="POST" enctype="application/x-www-form-urlencoded" class="chat-rooms min-w-max h-[55px] ml-6 flex  relative top-0 left-0">
+        <input placeholder="Add Room" name="room_name" type="text" class="chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
+        <input placeholder="Add Room" name="sender_id" value="<%- user.id %>" type="text" class="hidden chat-rooms-activator w-[100%] outline-none bg-neutral-800 rounded-md p-4">
         <button class="p-2 w-100 bg-green-300 font-bold w-[100px] rounded-r-md min-w-max">Add</button>
     </form>
 </div>

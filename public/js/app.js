@@ -407,7 +407,7 @@ class Chat{
         this.sender = document.querySelector('.chat-sender-input')
         this.recivers = document.querySelectorAll('.chat-user')
         this.current_room = null
-        this.rooms = document.querySelectorAll('.chat-rooms-menu div')
+        this.rooms = document.querySelectorAll('.chat-rooms-menu a')
     }
     handleReciverActivate = async (reciver) =>{
         this.current_reciver = reciver.id
@@ -424,7 +424,8 @@ class Chat{
         const url = await data
         this.recivers.forEach(r => r.classList.remove("bg-orange-300"))
         e.target.classList.add("bg-green-600")
-        Cookie.setCookie('current-reciver_id',e.target.id,7)
+        Cookie.setCookie('current-room',e.target.id,0)
+        Cookie.setCookie('current-reciver',e.target.id,7)
         setTimeout(() => {
             if(url.url){
                 window.location.href = url.url
@@ -432,7 +433,10 @@ class Chat{
         }, 100);
     }
     handleRoom(e){
+        Cookie.setCookie('current-room',e.target.id,7)
+        Cookie.setCookie('current-reciver',e.target.id,0)
         this.current_room = e.target.id
+        this.current_reciver = null
         if(e.target.id === 'undefined'){
             this.current_room = null
         }
@@ -440,7 +444,7 @@ class Chat{
     sendMessage = async(e) =>{
         e.preventDefault()
         this.current_reciver = Cookie.getCookie('current-reciver_id')
-        console.log(this.current_reciver)
+        this.current_room = Cookie.getCookie('current-room')
         const message = {
             room_id:this.current_room === null ? null : Number(this.current_room),
             message:this.message.value,
@@ -456,8 +460,12 @@ class Chat{
                 body: JSON.stringify(message)
             });
             this.message_form.reset()
-            if(this.current_reciver){
+            if(this.current_reciver && !this.current_room){
                 window.location.href = `/chat/private/${this.sender.value}/${this.current_reciver}`
+            }else if(this.current_room) {
+                const res = await fetch('/users/logged-user/json')
+                const user = await res.json()
+                window.location.href = `/chat/room/${Number(this.current_room)}/${user.id}`
             }else{
                 window.location.href = '/chat'
             }
